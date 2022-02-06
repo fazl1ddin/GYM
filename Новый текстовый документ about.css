@@ -1,0 +1,299 @@
+.mainBg {
+    background-image: url("img/placehold.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    height: 300px;
+}
+.mainAbout {
+    background-color: #00bff0;
+    margin-bottom: 115px;
+}
+.mainAboutContent h1 {
+    position: absolute;
+    font-size: 30px;
+    font-weight: 100;
+    width: 200px;
+    height: 50px;
+    background-color: #00bff0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 100%;
+}
+.mainAboutContent .mainAboutText {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.mainAboutContent .mainAboutText img {
+    width: 370px;
+    height: 200px;
+    margin: 70px 0;
+    margin-right: 100px;
+}
+.mainAboutContent .mainAboutText .mainAboutTextBox {
+    text-align: center;
+    width: 430px;
+    color: #fefefe;
+}
+.mainAboutContent .mainAboutText .mainAboutTextBox h2 {
+    font-size: 38px;
+    font-weight: 100;
+}
+.mainAboutContent .mainAboutText .mainAboutTextBox h3 {
+    font-size: 16px;
+    font-weight: 100;
+    padding-bottom: 5px;
+}
+.mainAboutContent .mainAboutText .mainAboutTextBox h4 {
+    font-size: 14px;
+    font-weight: 600;
+    padding-top: 10px;
+}
+.mainAboutContent .mainAboutText .mainAboutTextBox h4::after {
+    content: " - GYMSport Responsabile";
+    font-weight: 200;
+}
+.mainTrainers .mainTrainersContent h1 {
+    font-size: 30px;
+    font-weight: 300;
+    color: #57cbf4;
+    padding-bottom: 20px;
+}
+.mainTrainers .mainTrainersContent .ourContent {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.mainTrainers .mainTrainersContent .ourContent .our {
+    width: 370px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    background-color: #fff;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue {
+    width: 370px;
+    display: flex;
+    justify-content: space-between;
+    background-color: #72d0f4;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva {
+    width: 50%;
+    text-align: center;
+    margin: 30px 0 ;
+    margin-left: 15px;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #72d0f4;
+    text-transform: uppercase;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva h3 {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 500;
+    color: #72d0f4;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva h4 {
+    color: #606060;
+    font-style: italic;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    padding-bottom: 15px;
+    width: 140px;
+    margin: 0 auto;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva .ourImager {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva .ourImager .ourImagerBox {
+    display: flex;
+    justify-content: space-between;
+    width: 40px;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourAva .ourImager .ourImagerBox .imgImager.fade {
+    display: none;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourText {
+    border-left: 1px solid #00bff0;
+    box-sizing: border-box;
+    width: 50%;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 30px 0 ;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourText h2, h3 {
+    font-size: 11px;
+    color: #00bff0;
+}
+.mainTrainers .mainTrainersContent .ourContent .our .ourText h3 {
+    font-weight: 400;
+    color: #00bff0;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue .ourAva h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fefefe;
+    text-transform: uppercase;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue .ourAva h3 {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 500;
+    color: #fefefe;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue .ourAva h4 {
+    color: #fefefe;
+    font-style: italic;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    padding-bottom: 15px;
+    width: 140px;
+    margin: 0 auto;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue .ourText {
+    border-left: 1px solid #fefefe;
+    box-sizing: border-box;
+    width: 50%;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 30px 0 ;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue .ourText h2, h3 {
+    font-size: 11px;
+    color: #fefefe;
+}
+.mainTrainers .mainTrainersContent .ourContent .our.blue .ourText h3 {
+    font-weight: 400;
+    color: #fefefe;
+}
+.mainWhy {
+    background-color: #72d0f4;
+}
+.mainWhyContent {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+.mainWhyContent .mainWhyContentBox {
+    color: #222;
+    margin-bottom: 40px;
+    margin-top: 25px;
+}
+.mainWhyContent .mainWhyContentBox.join {
+    border-right: #fefefe 1px solid;
+    box-sizing: border-box;
+    color: #fefefe;
+}
+.mainWhyContent .mainWhyContentBox h1 {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 30px;
+}
+.mainWhyContent .mainWhyContentBox h2 {
+    font-size: 24px;
+    font-weight: 600;
+    padding-bottom: 10px;
+}
+.mainWhyContent .mainWhyContentBox.join h3 {
+    font-size: 14px;
+    width: 570px;
+    font-weight: 400;
+    line-height: 160%;
+    margin-right: 75px;
+}
+.mainWhyContent .mainWhyContentBox.join a {
+    width: 270px;
+    height: 40px;
+    background-color: #ff0000;
+    display: block;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #fefefe;
+    text-decoration: none;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    margin-top: 20px;
+}
+.mainWhyContent .mainWhyContentBox .ha {
+    color: #222;
+    font-size: 14px;
+    width: 370px;
+    font-weight: 400;
+    line-height: 160%;
+}
+.mainWhyContent .mainWhyContentBox .log {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.mainWhyContent .mainWhyContentBox .log a {
+    width: 130px;
+    height: 40px;
+    display: block;
+    background-color: #a0edf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #fefefe;
+    font-size: 12px;
+
+}
+.mainWhyContent .mainWhyContentBox .log .in {
+    background-color: #fefefe;
+    margin-right: 35px;
+    color: #72d0f4;
+}
+.mainJohnImg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: 100px;
+    margin-bottom: 75px;
+}
+.mainJohnImg h1 {
+    position: absolute;
+    font-size: 125px;
+    margin-top: 55px;
+    color: #fefefe;
+}
+.mainJohnText {
+    text-align: center;
+    padding-bottom: 95px;
+}
+.mainJohnText p {
+    font-size: 18px;
+    font-weight: 100;
+    line-height: 170%;
+    color: #787c7f;
+    width: 1030px;
+    letter-spacing: -0.5px;
+    padding-bottom: 50px;
+}
+.mainJohnText h3 {
+    color: #000;
+    font-size: 16px;
+    font-weight: 500;
+}
+.mainJohnText h3::after {
+    content: " CEO - THEUNCREATIVELAB";
+    color: #72d0f4;
+}

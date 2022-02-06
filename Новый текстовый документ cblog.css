@@ -1,0 +1,527 @@
+.mainBg {
+    background-image: url("img/placehold.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    height: 300px;
+}
+.mainCsingle {
+    background-color: #00bff0;
+    height: 10px;
+}
+.mainCsingle .h1 {
+    position: absolute;
+    width: 440px;
+    height: 50px;
+    background-color: #00bff0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    bottom: 100%;
+    color: #fefefe;
+}
+.mainCsingle h1 {
+    font-size: 30px;
+    font-weight: 100;
+    padding-left: 60px;
+}
+.mainCsingle h2 {
+    font-size: 11px;
+    font-weight: 100;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.mainCsingle h3 {
+    font-size: 12px;
+    font-weight: 100;
+    padding-right: 45px;
+}
+.mainBigContent {
+    display: flex;
+    justify-content: space-between;
+}
+.mainBigContentBox {
+    width: 770px;
+    text-align: center;
+    margin-top: 80px;
+}
+.mainBigContentBox h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #72d0f4;
+    padding: 20px 25px;
+}
+.mainBigContentBox .mainBigContentBoxMini {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.mainBigContentBox .mainBigContentBoxMini .mainBigContentBoxMiniLike {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mainBigContentBox .mainBigContentBoxMini .mainBigContentBoxMiniLike img {
+    padding-right: 20px;
+}
+.mainBigContentBox .mainBigContentBoxMini .mainBigContentBoxMiniLike h2 {
+    font-size: 12px;
+    color: #72d0f4;
+    font-weight: 200;
+    font-style: italic;
+}
+.mainBigContentBox .iimg {
+    width: 100%;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.mainBigContentBox p {
+    font-size: 14px;
+    color: #7f8c8c;
+    text-align: left;
+    margin: 30px 25px 0;
+    line-height: 170%;
+}
+.mainBigContentBox .mainContentBoxShare {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #72d0f4;
+    height: 70px;
+    border-radius: 2px;
+    margin-top: 230px;
+    margin-bottom: 80px;
+}
+.mainBigContentBox .mainContentBoxShare .mainContentBoxerShare {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 10px;
+}
+.mainBigContentBox .mainContentBoxShare .mainContentBoxerShare h3 {
+    font-size: 14px;
+    font-weight: 500px;
+    color: #fefefe;
+}
+.mainBigContentBox .mainContentBoxShare .mainContentBoxerShare img {
+    margin-left: 10px;
+}
+.mainBigContentBox .mainShareComments {
+    margin: 0 20px;
+}
+.mainBigContentBox .mainShareComments h1 {
+    text-align: left;
+    padding: 0;
+}
+.mainBigContentBox .mainShareComments h1 {
+    text-align: left;
+    padding: 0;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent {
+    margin-left: 20px;
+    width: 675px;
+    margin-bottom: 20px;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsInfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsInfo .infos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsInfo .infos h2 {
+    font-size: 16px;
+    color: #00bff0;
+    font-weight: 700;
+    margin-right: 20px;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsInfo .infos h3 {
+    font-size: 12px;
+    color: #7f8c8c;
+    font-weight: 300;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsInfo .infos h4 {
+    font-size: 14px;
+    font-weight: 300;
+    color: #72d0f4;
+    margin-left: 5px;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent .mainShareCommentsBox p {
+    margin: 0;
+    margin-left: 25px;
+}
+.mainBigContentBox .mainShareComments .mainShareCommentsContent.reply {
+    margin-left: 40px;
+}
+.mainBigContentBox .mainLeaveComments {
+    margin-left: 20px;
+}
+.mainBigContentBox .mainLeaveComments h1 {
+    text-align: left;
+}
+.mainBigContentBox .mainLeaveComments form {
+    margin-bottom: 35px;
+}
+.mainBigContentBox .mainLeaveComments form .formGroup {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.mainBigContentBox .mainLeaveComments form .formGroup input {
+    width: 450px;
+    height: 40px;
+    background-color: #72d0f4;
+    border: none;
+    border-radius: 2px;
+}
+.mainBigContentBox .mainLeaveComments form .formGroup h2 {
+    font-size: 18px;
+    font-weight: 400;
+    margin-left: 50px;
+    color: #72d0f4;
+}
+.mainBigContentBox .mainLeaveComments form button {
+    width: 200px;
+    height: 60px;
+    background-color: #f00;
+    border: none;
+    border-radius: 2px;
+    font-size: 20px;
+    color: #fefefe;
+    display: block;
+}
+.mainLittleContentBox {
+    width: 370px;
+    margin-top: 80px;
+}
+.mainLittleContentBox .mainLittleCategories {
+    background-color: #72d0f4;
+    padding-left: 40px;
+    margin-bottom: 30px;
+}
+.mainLittleContentBox .mainLittleCategories h1 {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 0;
+    color: #fefefe;
+}
+.mainLittleContentBox .mainLittleCategories .mainLittleCategoriesContent {
+    padding-bottom: 30px;
+    padding-left: 10px;
+}
+.mainLittleContentBox .mainLittleCategories .mainLittleCategoriesContent .mainLittleCategoriesContentBox {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 6.5px 0;
+}
+.mainLittleContentBox .mainLittleCategories .mainLittleCategoriesContent .mainLittleCategoriesContentBox img {
+    margin-right: 15px;
+}
+.mainLittleContentBox .mainLittlePosts {
+    background-color: #00bff0;
+    height: 370px;
+}
+.mainLittleContentBox .mainLittlePosts h1 {
+    font-size: 16px;
+    font-weight: 500;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    color: #fefefe;
+}
+.mainLittleContentBox .mainLittlePosts {
+    padding-left: 40px;
+}
+.mainLittleContentBox .mainLittlePosts .mainLittlePostsContent {
+    padding-right: 60px;
+}
+.mainLittleContentBox .mainLittlePosts .mainLittlePostsContent .mainLittlePostsContentBox {
+    border-bottom: 1px solid #e5e6e6;
+    padding-top: 15px;
+    padding-bottom: 10px;
+}
+.mainLittleContentBox .mainLittlePosts .mainLittlePostsContent .mainLittlePostsContentBox h3 {
+    color: #fefefe;
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-left: 35px;
+    position: relative;
+    line-height: 150%;
+    font-weight: 100;
+}
+.mainLittleContentBox .mainLittlePosts .mainLittlePostsContent .mainLittlePostsContentBox h3 span {
+    position: absolute;
+    left: -20px;
+}
+.mainLittleContentBox .mainLittlePosts .mainLittlePostsContent .mainLittlePostsContentBox h4 {
+    margin-left: 35px;
+    font-size: 12px;
+    color: #5d5d5d;
+    font-weight: 100;
+}
+.iframeLittleText {
+    text-align: center;
+    background-color: #a5d8eb;
+    opacity: 0.9;
+    width: 370px;
+    height: 500px;
+    margin-top: 30px;
+}
+.iframeLittleText h1 {
+    font-size: 30px;
+    font-weight: 300;
+    padding-top: 30px;
+    padding-bottom: 25px;
+    color: #fefefe;
+    line-height: 100%;
+}
+.iframeLittleText h1::after {
+    content: " Hours";
+    font-weight: 600;
+}
+.iframeLittleText .iframeLittleContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid #fefefe;
+    box-sizing: border-box;
+    margin: 0 20px;
+}
+.iframeLittleText .iframeLittleContent p, h4 {
+    font-size: 14px;
+    color: #fefefe;
+    font-weight: 400;
+}
+.iframeLittleText .iframeLittleContent .iframeLittleContentBox {
+    display: flex;
+    align-items: center;
+}
+.iframeLittleText .iframeLittleContent .iframeLittleContentBox img {
+    padding-right: 20px;
+}
+.iframeLittleText h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fefefe;
+    font-weight: 400;
+    padding-top: 25px;
+    line-height: 115%;
+}
+.iframeLittleText h3 {
+    font-size: 30px;
+    font-weight: 600;
+    font-style: italic;
+    color: #fefefe; 
+    padding-top: 20px;
+    padding-bottom: 25px;
+    line-height: 100%;
+}
+.mainLittleContentBox .ourContent {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    background-color: #fff;
+    text-align: center;
+    margin-top: 40px;
+}
+.mainLittleContentBox .ourContent .onleft {
+    position: absolute;
+    top: 50%;
+    margin-top: -18px;
+    left: 10px;
+}
+.mainLittleContentBox .ourContent .onright {
+    position: absolute;
+    margin-top: -18px;
+    top: 50%;
+    right: 10px;
+}
+.mainLittleContentBox .ourContent .our {
+    order: 3;
+    display: none;
+    box-sizing: border-box;
+    width: 185px;
+}
+.mainLittleContentBox .ourContent .our.start {
+    order: 1;
+    border-right: #a9ddf1 solid 0.5px;
+    margin: 30px 0 25px 30px;
+    padding-right: 15px;
+    display: block;
+}
+.mainLittleContentBox .ourContent .our.end {
+    order: 2;
+    border-left: #a9ddf1 solid 0.5px;
+    margin: 30px 30px 25px 0;
+    padding-left: 15px;
+    display: block;
+}
+.mainLittleContentBox .ourContent h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #72d0f4;
+    text-transform: uppercase;
+}
+.mainLittleContentBox .ourContent h3 {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 500;
+    color: #72d0f4;
+}
+.mainLittleContentBox .ourContent h4 {
+    color: #606060;
+    font-style: italic;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    padding-bottom: 15px;
+    width: 130px;
+    margin: 0 auto;
+}
+.mainLittleContentBox .ourContent .ourImager {
+    display: flex;
+    justify-content: space-between;
+}
+.mainLittleContentBox .ourContent .ourImager .ourImagerBox {
+    display: flex;
+    justify-content: space-between;
+    width: 40px;
+}
+.mainLittleContentBox .ourContent .ourImager .ourImagerBox .imgImager.fade {
+    display: none;
+}
+.mainLittleContentBox .mainClassLittleMember {
+    width: 370px;
+}
+.mainLittleContentBox .mainClassLittleMember h1 {
+    font-size: 30px;
+    color: #72d0f4;
+    font-weight: 100;
+    text-align: center;
+    padding-top: 45px;
+    padding-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+.mainLittleContentBox .mainClassLittleMember h1::after {
+    content: " Prices";
+    font-style: italic;
+}
+.mainLittleContentBox .mainClassLittleMember .mainClassLittleMemberContent {
+    background-color: #00bff0;
+    text-align: center;
+    padding-bottom: 25px;
+}
+.mainLittleContentBox .mainClassLittleMember .mainClassLittleMemberContent h2 {
+    font-size: 18px;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #fefefe;
+    padding-top: 45px;
+    padding-bottom: 15px;
+}
+.mainLittleContentBox .mainClassLittleMember .mainClassLittleMemberContent h3 {
+    font-size: 16px;
+    color: #fefefe;
+    width: 225px;
+    padding-bottom: 20px;
+    font-weight: 100;
+    margin: 0 auto;
+    line-height: 160%;
+}
+.mainLittleContentBox .mainClassLittleMember .mainClassLittleMemberContent a {
+    width: 85px;
+    line-height: 40px;
+    border: solid 2px #fefefe;
+    display: block;
+    text-decoration: none;
+    color: #fefefe;
+    font-size: 14px;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+.mainLittleContentBox .mainLittleTags {
+    margin-top: 50px;
+    margin-left: 40px;
+    margin-right: 70px;
+    margin-bottom: 40px;
+}
+.mainLittleContentBox .mainLittleTags h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #72d0f4;
+    padding-bottom: 25px;
+}
+.mainLittleContentBox .mainLittleTags .mainLittleTagsContent {
+    display: flex;
+    flex-wrap: wrap;
+}
+.mainLittleContentBox .mainLittleTags .mainLittleTagsContent a {
+    height: 25px;
+    background-color: #72d0f4;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #fefefe;
+    padding: 0 10px;
+    margin-right: 13px;
+    text-decoration: none;
+}
+.mainLittleContentBox .mainLittleArchive {
+    background-color: #e6e6e6;
+    padding-left: 40px;
+    padding-bottom: 15px;
+}
+.mainLittleContentBox .mainLittleArchive h1 {
+    font-size: 16px;
+    color: #72d0f4;
+    font-weight: 500;
+    padding: 25px 0;
+}
+.mainLittleContentBox .mainLittleArchive .mainLittleArchiveContent a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #72d0f4;
+    text-decoration: none;
+}
+.mainLittleContentBox .mainLittleArchive .mainLittleArchiveContent a img {
+    margin-right: 15px;
+}
+.mainLittleContentBox .maiNikePartner h1 {
+    font-size: 30px;
+    color: #72d0f4;
+    font-weight: 100;
+    text-align: center;
+    padding-top: 55px;
+    padding-bottom: 45px;
+}
+.mainLittleContentBox .maiNikePartner .maiNikePartnerContent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    height: 290px;
+}
+.mainLittleContentBox .maiNikePartner .maiNikePartnerContent .maiNikePartnerContentBox {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 185px;
+}

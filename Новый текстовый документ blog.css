@@ -1,0 +1,237 @@
+.mainBg {
+    background-image: url("img/placehold.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    height: 295px;
+}
+.mainAbout {
+    background-color: #00bff0;
+    margin-bottom: 115px;
+    height: 10px;
+}
+.mainAbout h1 {
+    position: absolute;
+    font-size: 30px;
+    font-weight: 100;
+    width: 200px;
+    height: 50px;
+    background-color: #00bff0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 100%;
+    color: #fefefe;
+}
+.mainCrossfitContent {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.mainCrossfitContent .mainCrossfitContentBox {
+    width: 570px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxImg img {
+    width: 250px;
+    height: 100%;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer {
+    background-color: #72d0f4;
+    color: #fefefe;
+    text-align: center;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer.white {
+    color: #72d0f4;
+    background-color: #fefefe;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer h1 {
+    font-size: 24px;
+    font-weight: 100;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer p {
+    font-size: 11px;
+    font-weight: 400;
+    text-align: left;
+    padding-left: 25px;
+    padding-bottom: 20px;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitContentAva {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    margin-bottom: 20px;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitContentAva .mainCrossfitAva {
+    padding-right: 10px;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitContentAva .mainCrossfitContentAvaText h5 {
+    font-size: 11px;
+    font-weight: 600;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitContentAva .mainCrossfitContentAvaText h3 {
+    font-size: 14px;
+    font-weight: 600;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitContentAva .mainCrossfitContentAvaText h4 {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 200;
+    width: 130px;
+    margin: 0 auto;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer.white .mainCrossfitContentAva .mainCrossfitContentAvaText h4 {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 200;
+    width: 130px;
+    margin: 0 auto;
+    color: #72d0f4;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitA {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 15px;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer .mainCrossfitA a {
+    width: 85px;
+    height: 20px;
+    margin: 0 30px;
+    text-transform: uppercase;
+    border: 1px solid #fefefe;
+    font-size: 11px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    color: #fefefe;
+}
+.mainCrossfitContent .mainCrossfitContentBox .mainCrossfitContentBoxer.white .mainCrossfitA a {
+    width: 85px;
+    height: 20px;
+    margin: 0 30px;
+    text-transform: uppercase;
+    border: 1px solid #72d0f4;
+    font-size: 11px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    color: #72d0f4;
+}
+.mainClassContent .mainClassAllBlog {
+    width: 370px;
+}
+.mainClassContent .mainClassAllBlog .from {
+    background-color: #d4d6d6;
+    padding: 10px 0 0 20px;
+}
+.mainClassContent .mainClassAllBlog .from .fromBox {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+.mainClassContent .mainClassAllBlog .from .fromBox .fromText {
+    text-align: left;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+.mainClassContent .mainClassAllBlog .from .fromBox .fromText p {
+    color: #fefefe;
+}
+.mainClassContent .mainClassAllBlog .from .fromBox .fromText h5 {
+    color: #848585;
+}
+.mainWhy {
+    background-color: #72d0f4;
+}
+.mainWhyContent {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    margin-top: 125px;
+    margin-bottom: 130px;
+}
+.mainWhyContent .mainWhyContentBox {
+    color: #222;
+    margin-bottom: 40px;
+    margin-top: 25px;
+}
+.mainWhyContent .mainWhyContentBox.join {
+    border-right: #fefefe 1px solid;
+    box-sizing: border-box;
+    color: #fefefe;
+}
+.mainWhyContent .mainWhyContentBox h1 {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 30px;
+}
+.mainWhyContent .mainWhyContentBox h2 {
+    font-size: 24px;
+    font-weight: 600;
+    padding-bottom: 10px;
+}
+.mainWhyContent .mainWhyContentBox.join h3 {
+    font-size: 14px;
+    width: 570px;
+    font-weight: 400;
+    line-height: 160%;
+    margin-right: 75px;
+}
+.mainWhyContent .mainWhyContentBox.join a {
+    width: 270px;
+    height: 40px;
+    background-color: #ff0000;
+    display: block;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #fefefe;
+    text-decoration: none;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    margin-top: 20px;
+}
+.mainWhyContent .mainWhyContentBox .ha {
+    color: #222;
+    font-size: 14px;
+    width: 370px;
+    font-weight: 400;
+    line-height: 160%;
+}
+.mainWhyContent .mainWhyContentBox .log {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.mainWhyContent .mainWhyContentBox .log a {
+    width: 130px;
+    height: 40px;
+    display: block;
+    background-color: #a0edf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #fefefe;
+    font-size: 12px;
+
+}
+.mainWhyContent .mainWhyContentBox .log .in {
+    background-color: #fefefe;
+    margin-right: 35px;
+    color: #72d0f4;
+}

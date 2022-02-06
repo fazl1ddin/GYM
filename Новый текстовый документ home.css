@@ -1,0 +1,790 @@
+@import url('https://fonts.googleapis.com/css2?family=Fjalla+One&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&family=Raleway:wght@100;200;300;400;500;600;700;800;900&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&display=swap');
+* {
+    padding: 0;
+    margin: 0;
+    font-family: "open sans", sans-serif;
+}
+body {
+    background-color: #f3f3f3;
+}
+.window {
+    max-width: 1170px;
+    margin: 0 auto;
+    position: relative;
+}
+.toper {
+    background-image: url("img/placehold.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding-top: 225px;
+}
+.toperText {
+    width: 540px;
+    background-color: #8dc6dc;
+    padding-top: 10px;
+    padding-bottom: 30px;
+    color: #fefefe;
+    margin-bottom: 250px;
+}
+.toperText h1 {
+    font-size: 48px;
+    font-weight: lighter;
+    padding-left: 15px;
+}
+.toperText h2 {
+    font-size: 24px;
+    font-weight: 300;
+    text-transform: uppercase;
+    padding-left: 15px;
+}
+.toperText p {
+    font-size: 14px;
+    font-weight: 100;
+    letter-spacing: 2px;
+    padding-bottom: 20px;
+    padding-left: 15px;
+}
+.toperText a {
+    display: block;
+    width: 140px;
+    text-decoration: none;
+    box-sizing: border-box;
+    border: 1px solid #fefefe;
+    border-radius: 7px;
+    text-align: center;
+    line-height: 40px;
+    margin: 0 auto;
+    color: #fefefe;
+    font-size: 12px;
+    font-weight: 600;
+}
+.toper img {
+    display: block;
+    margin: 0 auto;
+    padding-bottom: 50px;
+}
+.networks {
+    background-color: #00bff0;
+}
+.networksContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+}
+.networksContent .phoneNum {
+    display: flex;
+    align-items: center;
+    color: #fefefe;
+    font-weight: 100;
+}
+.networksContent .phoneNum img {
+    margin-right: 10px;
+}
+.networksContent .networksIcons {
+    display: flex;
+    align-items: center;
+}
+.networksContent .networksIcons img {
+    margin-left: 15px;
+}
+.nav {
+    background-color: #72d0f4;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+}
+.navbar ul {
+    display: flex;
+    justify-content: center;
+}
+.navbar ul li {
+    list-style: none;
+}
+.navbar ul li a {
+    color: #fefefe;
+    text-decoration: none;
+    display: block;
+    padding: 0 22px;
+    line-height: 50px;
+    font-size: 13px;
+}
+.navbar ul li a.active {
+    border: #fefefe;
+    border: 1px solid #fefefe;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+.navbar ul li a.hovered {
+    color: #72d0f4;
+    background-color: #fefefe;
+    border-radius: 5px;
+}
+.navbar ul li a.hovered::before {
+    content: "\02C5";
+    padding-right: 10px;
+}
+.navbar ul li .menu {
+    position: absolute;
+    display: none;
+}
+.navbar ul li .menu.hid {
+    display: block;
+}
+.navbar ul li .menu ul {
+    display: block;
+    background-color: #fefefe;
+    border-radius: 5px;
+    width: 200px;
+}
+.navbar ul li .menu ul li a {
+    color: #72d0f4;
+    line-height: 30px;
+    font-size: 13px;
+    width: 180px;
+    padding: 0;
+    padding-left: 10px;
+    margin: 0 auto;
+    border-radius: 1px;
+    transition: all 0.25s ease-in-out;
+}
+.navbar ul li .menu ul li a:hover {
+    background-color: #72d0f4;
+    color: #fefefe;
+}
+.mainDolorText {
+    display: flex;
+    justify-content: flex-end;
+}
+.mainDolorText .mainDolorContentText {
+    text-align: center;
+    padding-bottom: 85px;
+    padding-right: 100px;
+}
+.mainDolorText .mainDolorContentText h1 {
+    font-size: 38px;
+    font-weight: 300;
+    color: #505961;
+}
+.mainDolorText .mainDolorContentText p {
+    color: #8b9297;
+    font-size: 16px;
+    width: 555px;
+    font-weight: 200;
+}
+.mainDolorContent {
+    display: flex;
+    justify-content: space-between;
+}
+.mainDolorContent .mainDolorContentBox {
+    background-color: #72d0f4;
+    margin-bottom: 75px;
+}
+.mainDolorContent .mainDolorContentBox .mainDolorContentBoxer {
+    display: flex;
+    justify-content: space-between;
+    height: 50px;
+    align-items: center;
+    color: #fefefe;
+    margin: 0 20px;
+}
+.mainDolorContent .mainDolorContentBox .mainDolorContentBoxer h3 {
+    font-size: 18px;
+    font-weight: 400;
+}
+.mainDolorContent .mainDolorContentBox .mainDolorContentBoxer span {
+    font-weight: 200;
+    font-style: italic;
+}
+.mainDolorContent .mainDolorContentBox .mainDolorContentBoxer h4 {
+    font-size: 11px;
+    font-weight: bold;
+}
+.mainDolorContent .mainDolorContentBox img {
+    width: 370px;
+}
+.mainClassContent {
+    display: flex;
+    justify-content: space-between;
+}
+.mainClassContent h1 {
+    text-align: center;
+    color: #57cbf4;
+    font-size: 30px;
+    font-weight: 300;
+    padding-bottom: 20px;
+}
+.mainClassContent .mainClassAll {
+    width: 770px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox {
+    height: 250px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background-color: #72d0f4;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex {
+    width: 330px;
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 20px;
+    border-bottom: solid #c1eafa 1px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #fefefe;
+    padding-bottom: 10px;
+    font-weight: 300;
+    position: relative;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5 {
+    position: absolute;
+    top: -30px;
+    color: #72d0f4;
+    font-weight: 200;
+    padding: 5px 35px;
+    background-color: #fefefe;
+    border-radius: 3px;
+    display: none;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.timetable {
+    left: 28px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.sendto {
+    left: 70px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.likeit {
+    left: 113px;
+    width: 35px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.share {
+    left: 155px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.bly {
+    display: block;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer a {
+    display: flex;
+    align-items: center;
+    padding-right: 10px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer a img {
+    padding: 0;
+    width: auto;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer img {
+    padding-left: 25px;
+}
+.mainClassMember {
+    width: 370px;
+}
+.mainClassMember .mainClassMemberContent {
+    background-color: #00bff0;
+    text-align: center;
+    padding-bottom: 25px;
+}
+.mainClassMember .mainClassMemberContent h2 {
+    font-size: 18px;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #fefefe;
+    padding-top: 45px;
+    padding-bottom: 15px;
+}
+.mainClassMember .mainClassMemberContent h3 {
+    font-size: 16px;
+    color: #fefefe;
+    width: 225px;
+    padding-bottom: 20px;
+    font-weight: 100;
+    margin: 0 auto;
+    line-height: 160%;
+}
+.mainClassMember .mainClassMemberContent a {
+    width: 85px;
+    line-height: 40px;
+    border: solid 2px #fefefe;
+    display: block;
+    text-decoration: none;
+    color: #fefefe;
+    font-size: 14px;
+    margin: 0 auto;
+    border-radius: 5px;
+    text-transform: uppercase;
+}
+.maiNextContent {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 75px;
+    margin-bottom: 80px;
+}
+.maiNextContent .maiNextContentBox {
+    width: 370px;
+    text-align: center;
+}
+.maiNextContent .maiNextContentBox h1 {
+    font-size: 30px;
+    font-weight: 300;
+    color: #57cbf4;
+    padding-bottom: 20px;
+}
+.maiNextContent .maiNextContentBox .ourContent {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    background-color: #fff;
+}
+.maiNextContent .maiNextContentBox .ourContent .onleft {
+    position: absolute;
+    top: 50%;
+    margin-top: -18px;
+    left: 10px;
+}
+.maiNextContent .maiNextContentBox .ourContent .onright {
+    position: absolute;
+    margin-top: -18px;
+    top: 50%;
+    right: 10px;
+}
+.maiNextContent .maiNextContentBox .ourContent .our {
+    order: 3;
+    display: none;
+    box-sizing: border-box;
+    width: 185px;
+}
+.maiNextContent .maiNextContentBox .ourContent .our.start {
+    order: 1;
+    border-right: #a9ddf1 solid 0.5px;
+    margin: 30px 0 25px 30px;
+    padding-right: 15px;
+    display: block;
+}
+.maiNextContent .maiNextContentBox .ourContent .our.end {
+    order: 2;
+    border-left: #a9ddf1 solid 0.5px;
+    margin: 30px 30px 25px 0;
+    padding-left: 15px;
+    display: block;
+}
+.maiNextContent .maiNextContentBox .ourContent h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #72d0f4;
+    text-transform: uppercase;
+}
+.maiNextContent .maiNextContentBox .ourContent h3 {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 500;
+    color: #72d0f4;
+}
+.maiNextContent .maiNextContentBox .ourContent h4 {
+    color: #606060;
+    font-style: italic;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    padding-bottom: 15px;
+    width: 130px;
+    margin: 0 auto;
+}
+.maiNextContent .maiNextContentBox .ourContent .ourImager {
+    display: flex;
+    justify-content: space-between;
+}
+.maiNextContent .maiNextContentBox .ourContent .ourImager .ourImagerBox {
+    display: flex;
+    justify-content: space-between;
+    width: 40px;
+}
+.maiNextContent .maiNextContentBox .ourContent .ourImager .ourImagerBox .imgImager.fade {
+    display: none;
+}
+.maiNextContent .even {
+    background-color: #a5e5fe;
+}
+.maiNextContent .even .evenContent {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 40px 0 30px;
+}
+.maiNextContent .even .evenContent.up {
+    padding-top: 19px;
+    padding-bottom: 15px;
+    border-bottom: 0.5px solid #d1f2fe;
+}
+.maiNextContent .even .evenContent.down {
+    padding-bottom: 19px;
+    padding-top: 15px;
+    border-top: 0.5px solid #d1f2fe;
+}
+.maiNextContent .even .evenContent .evenContentImag {
+    height: 90px;
+}
+.maiNextContent .even .evenContent .evenContentImag h2 {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    color: #fefefe;
+}
+.maiNextContent .even .evenContent .evenContentImag img {
+    width: 120px;
+    height: 70px;
+}
+.maiNextContent .even .evenContent .evenContenText {
+    width: 160px;
+}
+.maiNextContent .even .evenContent .evenContenText h6 {
+    font-size: 10px;
+    color: #fe0000;
+}
+.maiNextContent .even .evenContent .evenContenText h1 {
+    color: #292929;
+    font-size: 18px;
+    padding: 0;
+    font-weight: 500;
+    line-height: 100%;
+}
+.maiNextContent .even .evenContent .evenContenText h3 {
+    font-size: 12px;
+    color: #252525;
+    line-height: 90%;
+    font-weight: normal;
+    padding-bottom: 10px;
+}
+.maiNextContent .even .evenContent .evenContenText a {
+    font-size: 10px;
+    display: block;
+    width: 85px;
+    line-height: 20px;
+    border: 1px solid #3e4c51;
+    color: #fe0000;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-radius: 3px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+.maiNextContent .from {
+    background-color: #d4d6d6;
+    padding: 10px 0 0 20px;
+}
+.maiNextContent .from .fromBox {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+.maiNextContent .from .fromBox .fromText {
+    text-align: left;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+.maiNextContent .from .fromBox .fromText p {
+    color: #fefefe;
+}
+.maiNextContent .from .fromBox .fromText h5 {
+    color: #848585;
+}
+.maiNikeContent {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 120px;
+}
+.maiNikeContent .maiNikeGallery {
+    display: flex;
+    justify-content: space-between;
+}
+.maiNikeContent h1 {
+    font-size: 30px;
+    font-weight: 300;
+    color: #57cbf4;
+    padding-bottom: 20px;
+    text-align: center;
+}
+.maiNikeContent .maiNikeGallery {
+    position: relative;
+}
+.maiNikeContent .maiNikeGallery .arigth {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    margin-top: -30px;
+}
+.maiNikeContent .maiNikeGallery .aleft {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -30px;
+}
+.maiNikeContent .maiNikeGallery .maiNikeGalleryBox {
+    order: 4;
+    display: none;
+}
+.maiNikeContent .maiNikeGallery .maiNikeGalleryBox.sta {
+    order: 1;
+    display: block;
+}
+.maiNikeContent .maiNikeGallery .maiNikeGalleryBox.mid {
+    margin: 0 2.5px;
+    order: 2;
+    display: block;
+}
+.maiNikeContent .maiNikeGallery .maiNikeGalleryBox.kon {
+    order: 3;
+    display: block;
+}
+.maiNikeContent .maiNikeGallery .maiNikeGalleryBox .maiNikeBoxer img {
+    width: 255px;
+    height: 170px;
+}
+.maiNikeContent .maiNikePartner .maiNikePartnerContent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 80px;
+    height: 350px;
+}
+.maiNikeContent .maiNikePartner .maiNikePartnerContent .maiNikePartnerContentBox {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+}
+iframe {
+    width: 100%;
+    height: 500px;
+    border: 0;
+}
+.iframeText {
+    position: absolute;
+    bottom: 5px;
+    right: 0;
+    text-align: center;
+    background-color: #71cff4;
+    opacity: 0.9;
+    width: 370px;
+    height: 500px;
+}
+.iframeText h1 {
+    font-size: 30px;
+    font-weight: 300;
+    padding-top: 30px;
+    padding-bottom: 25px;
+    color: #fefefe;
+    line-height: 100%;
+}
+.iframeText h1::after {
+    content: " Hours";
+    font-weight: 600;
+}
+.iframeText .iframeContent {
+    display: flex;justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid #fefefe;
+    box-sizing: border-box;
+    margin: 0 20px;
+}
+.iframeText .iframeContent p, h4 {
+    font-size: 14px;
+    color: #fefefe;
+    font-weight: 400;
+}
+.iframeText .iframeContent .iframeContentBox {
+    display: flex;
+    align-items: center;
+}
+.iframeText .iframeContent .iframeContentBox img {
+    padding-right: 20px;
+}
+.iframeText h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fefefe;
+    font-weight: 400;
+    padding-top: 25px;
+    line-height: 115%;
+}
+.iframeText h3 {
+    font-size: 30px;
+    font-weight: 600;
+    font-style: italic;
+    color: #fefefe; 
+    padding-top: 20px;
+    padding-bottom: 25px;
+    line-height: 100%;
+}
+.mainTwitter {
+    background-color: #fff;
+}
+.mainTwitterContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 120px;
+    padding-bottom: 100px;
+}
+.mainTwitterContent h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3dccf1;
+    width: 650px;
+    padding-left: 45px;
+}
+.mainTwitterContent h3::after {
+    content: "  2 days ago";
+    color: #1e68ae;
+}
+.footer {
+    background-color: #72d0f4;
+}
+.footerContent {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 45px;
+    color: #fefefe;
+}
+.footerContent .footerContentBox {
+    width: 370px;
+    padding-bottom: 60px;
+}
+.footerContent .footerContentBox h2 {
+    font-size: 18px;
+    font-weight: 500;
+    padding-bottom: 25px;
+    padding-top: 5px;
+    padding-left: 20px;
+}
+.footerContent .footerContentBox h3 {
+    font-size: 14px;
+    font-weight: 500;
+    padding-left: 20px;
+    padding-bottom: 15px;
+    text-transform: uppercase;
+    width: 215px;
+    line-height: 150%;
+}
+.footerContent .footerContentBox form {
+    padding-left: 20px;
+}
+.footerContent .footerContentBox form input[type="email"] {
+    width: 340px;
+    height: 40px;
+    background-color: #b9e8fa;
+    border: 1px #00afec solid;
+    box-sizing: border-box;
+    border-radius: 2px;
+    margin-bottom: 15px;
+}
+.footerContent .footerContentBox form input[type="email"]::placeholder {
+    color: #00afec;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding-left: 25px;
+}
+.footerContent .footerContentBox form button {
+    width: 210px;
+    height: 40px;
+    background-color: #e25050;
+    border: none;
+    color: #fefefe;
+    text-transform: uppercase;
+    font-size: 12px;
+    text-align: left;
+    padding-left: 20px;
+}
+.footerContent .footerContentBox form button::after {
+    content: "\003e";
+    padding-left: 80px;
+}
+.footerContent .footerContentBox.logo {
+    text-align: center;
+}
+.footerContent .footerContentBox.logo p {
+    width: 355px;
+    font-size: 13px;
+    font-weight: 300;
+    text-align: left;
+    line-height: 180%;
+    padding-bottom: 30px;
+}
+.footerContent .footerContentBox.logo h4 {
+    font-size: 13px;
+    text-align: left;
+    padding-bottom: 10px;
+    font-weight: 300;
+}
+.footerContent .footerContentBox.logo span {
+    font-size: 20px;
+    font-weight: 600;
+    font-style: italic;
+}
+.footerContent .footerContentBox.main {
+    display: flex;
+    justify-content: space-between;
+}
+.footerContent .footerContentBox.main .footerContentBoxer {
+    padding: 0 35px;
+    width: 135px;
+}
+.footerContent .footerContentBox.main .footerContentBoxer h1 {
+    font-size: 18px;
+    font-weight: 500;
+    padding-bottom: 25px;
+}
+.footerContent .footerContentBox.main .footerContentBoxer ul li {
+    list-style: none;
+}
+.footerContent .footerContentBox.main .footerContentBoxer ul li a {
+    text-decoration: none;
+    color: #fefefe;
+    line-height: 180%;
+}
+.footerContent .footerContentBox.main .footerContentBoxer ul li a::before {
+    content: "\003e";
+    padding: 0 8px 0 10px;
+    width: 25px;
+    text-align: center;
+}
+.copyright {
+    background-color: #00bff0;
+}
+.copyrightContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+}
+.copyrightContent .copyrightText {
+    display: flex;
+    align-items: center;
+    color: #fefefe;
+    font-weight: 100;
+}
+.copyrightContent .copyrightText p {
+    font-size: 12px;
+}
+.copyrightContent .copyrightText img {
+    padding: 0 5px;
+}
+.copyrightContent .copyrightIcons {
+    display: flex;
+    align-items: center;
+}
+.copyrightContent .copyrightIcons img {
+    margin-left: 15px;
+}

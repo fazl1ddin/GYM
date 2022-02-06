@@ -1,0 +1,305 @@
+.mainBg {
+    background-image: url("img/placehold.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    height: 300px;
+}
+.mainPricingTitle {
+    background-color: #00bff0;
+    height: 10px;
+}
+.mainPricingTitle h1 {
+    position: absolute;
+    font-size: 30px;
+    font-weight: 100;
+    width: 200px;
+    height: 50px;
+    background-color: #00bff0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 100%;
+    color: #fefefe;
+}
+.mainClassContent {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 135px;
+}
+.mainClassContent h1 {
+    text-align: center;
+    color: #57cbf4;
+    font-size: 30px;
+    font-weight: 300;
+    padding-bottom: 20px;
+}
+.mainClassContent .mainClassAll {
+    width: 770px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox {
+    height: 250px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background-color: #72d0f4;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex {
+    width: 330px;
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 20px;
+    border-bottom: solid #c1eafa 1px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #fefefe;
+    padding-bottom: 10px;
+    font-weight: 300;
+    position: relative;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5 {
+    position: absolute;
+    top: -30px;
+    color: #72d0f4;
+    font-weight: 200;
+    padding: 5px 35px;
+    background-color: #fefefe;
+    border-radius: 3px;
+    display: none;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.timetable {
+    left: 28px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.sendto {
+    left: 70px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.likeit {
+    left: 113px;
+    width: 35px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.share {
+    left: 155px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer h5.bly {
+    display: block;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer a {
+    display: flex;
+    align-items: center;
+    padding-right: 10px;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer a img {
+    padding: 0;
+    width: auto;
+}
+.mainClassContent .mainClassAll .mainClassAllContentBox .mainClassAllContentBoxex .mainClassAllContentBoxer img {
+    padding-left: 25px;
+}
+.mainClassContent .mainClassMember {
+    width: 370px;
+}
+.mainClassContent .mainClassMember .mainClassMemberContent {
+    background-color: #00bff0;
+    text-align: center;
+    padding-bottom: 25px;
+}
+.mainClassContent .mainClassMember .mainClassMemberContent h2 {
+    font-size: 18px;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #fefefe;
+    padding-top: 45px;
+    padding-bottom: 15px;
+}
+.mainClassContent .mainClassMember .mainClassMemberContent h3 {
+    font-size: 16px;
+    color: #fefefe;
+    width: 225px;
+    padding-bottom: 20px;
+    font-weight: 100;
+    margin: 0 auto;
+    line-height: 160%;
+}
+.mainClassContent .mainClassMember .mainClassMemberContent a {
+    width: 85px;
+    line-height: 40px;
+    border: solid 2px #fefefe;
+    display: block;
+    text-decoration: none;
+    color: #fefefe;
+    font-size: 14px;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+.mainClassContent .even {
+    background-color: #a5e5fe;
+    width: 370px;
+}
+.mainClassContent .even .evenContent {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 40px 0 30px;
+}
+.mainClassContent .even .evenContent.up {
+    padding-top: 19px;
+    padding-bottom: 15px;
+    border-bottom: 0.5px solid #d1f2fe;
+}
+.mainClassContent .even .evenContent.down {
+    padding-bottom: 19px;
+    padding-top: 15px;
+    border-top: 0.5px solid #d1f2fe;
+}
+.mainClassContent .even .evenContent .evenContentImag {
+    height: 90px;
+}
+.mainClassContent .even .evenContent .evenContentImag h2 {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    color: #fefefe;
+}
+.mainClassContent .even .evenContent .evenContentImag img {
+    width: 120px;
+    height: 70px;
+}
+.mainClassContent .even .evenContent .evenContenText {
+    width: 160px;
+}
+.mainClassContent .even .evenContent .evenContenText h6 {
+    font-size: 10px;
+    color: #fe0000;
+}
+.mainClassContent .even .evenContent .evenContenText h1 {
+    color: #292929;
+    font-size: 18px;
+    padding: 0;
+    font-weight: 500;
+    line-height: 100%;
+}
+.mainClassContent .even .evenContent .evenContenText h3 {
+    font-size: 12px;
+    color: #252525;
+    line-height: 90%;
+    font-weight: normal;
+    padding-bottom: 10px;
+}
+.mainClassContent .even .evenContent .evenContenText a {
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 85px;
+    line-height: 20px;
+    border: 1px solid #3e4c51;
+    color: #fe0000;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-radius: 3px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+.mainQue {
+    background-color: #e6e6e6;
+}
+.mainQueContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 68px 0;
+}
+.mainQueContent .mainQueHavea h1 {
+    color: #00bff0;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+.mainQueContent .mainQueHavea h4 {
+    font-size: 16px;
+    color: #00bff0;
+    font-weight: 400;
+}
+.mainQueContent a {
+    width: 200px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f00;
+    border-radius: 2px;
+    text-decoration: none;
+    color: #fefefe;
+    font-weight: 600;
+    font-size: 20px;
+}
+.mainPricing h1 {
+    text-align: center;
+    color: #57cbf4;
+    font-size: 30px;
+    font-weight: 300;
+    padding-bottom: 30px;
+    padding-top: 60px;
+    text-transform: uppercase;
+}
+.mainPricingContent {
+    display: flex;
+    justify-content: space-between;
+}
+.mainPricingContent .mainPricingContentBox {
+    width: 270px;
+    background-color: #31c9f1;
+    text-align: center;
+    color: #fefefe;
+}
+.mainPricingContent .mainPricingContentBox.free {
+    background-color: #00bff0;
+}
+.mainPricingContent .mainPricingContentBox h2 {
+    font-size: 14px;
+    font-weight: 500;
+    padding-top: 15px;
+    padding-bottom: 20px;
+}
+.mainPricingContent .mainPricingContentBox h3 {
+    font-size: 36px;
+    font-weight: 700;
+    display: block;
+    position: relative;
+}
+.mainPricingContent .mainPricingContentBox h3 sup {
+    font-size: 15px;
+    margin-top: -10px;
+    position: absolute;
+    top: 10px;
+}
+.mainPricingContent .mainPricingContentBox .mainPricingTick {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0 2.5px;
+}
+.mainPricingContent .mainPricingContentBox .mainPricingTick img {
+    padding-right: 10px;
+}
+.mainPricingContent .mainPricingContentBox .mainPricingTick h4 {
+    font-size: 12px;
+}
+.mainPricingContent .mainPricingContentBox a {
+    width: 140px;
+    height: 40px;
+    border: solid 1px #fefefe;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px auto;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+    color: #fefefe;
+}

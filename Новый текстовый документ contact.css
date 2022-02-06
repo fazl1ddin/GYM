@@ -1,0 +1,332 @@
+.mainContact {
+    background-color: #00bff0;
+    margin-bottom: 115px;
+}
+.mainContactContent h1 {
+    position: absolute;
+    font-size: 30px;
+    font-weight: 100;
+    width: 200px;
+    height: 50px;
+    background-color: #00bff0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 100%;
+}
+.mainContactContent .mainContactContentBox {
+    display: flex;
+    justify-content: space-between;
+}
+.mainContactContent .mainContactContentBox .mainContactForm {
+    width: 670px;
+    color: #fefefe;
+    margin: 70px 3px 55px;
+}
+.mainContactContent .mainContactContentBox .mainContactForm p {
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 100;
+}
+.mainContactContent .mainContactContentBox .mainContactForm h5 {
+    font-size: 14px;
+    font-weight: 500;
+    width: 590px;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form input {
+    width: 210px;
+    border: none;
+    background-color: #80dff8;
+    height: 40px;
+    margin-bottom: 20px;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form input::placeholder {
+    padding-left: 10px;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #656565;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form textarea {
+    width: 440px;
+    background-color: #80dff8;
+    height: 110px;
+    border: none;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form textarea::placeholder {
+    font-size: 12px;
+    padding: 10px;
+    text-transform: uppercase;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form div button {
+    width: 210px;
+    background-color: #e25050;
+    height: 40px;
+    border: none;
+    text-transform: uppercase;
+    color: #fefefe;
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 20px;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form div button::after {
+    content: "\003e";
+    padding-left: 5px;
+}
+.mainContactContent .mainContactContentBox .mainContactForm form div h6 {
+    font-size: 12px;
+    font-weight: 100;
+}
+.mainContactContent .mainContactContentBox .mainContactText {
+    width: 400px;
+    color: #fefefe;
+    margin-top: 70px;
+}
+.mainContactContent .mainContactContentBox .mainContactText h2 {
+    font-size: 14px;
+    font-weight: 100;
+    padding-bottom: 35px;
+}
+.mainContactContent .mainContactContentBox .mainContactText h3 {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    padding-bottom: 30px;
+}
+.mainContactContent .mainContactContentBox .mainContactText .mainContactIcons h3 {
+    padding: 0;
+    margin: 0;
+    padding-left: 10px;
+}
+.mainContactContent .mainContactContentBox .mainContactText .mainContactIcons {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+}
+iframe {
+    width: 100%;
+    height: 500px;
+    border: 0;
+    margin-bottom: -5px;
+}
+.mainKashaContent {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 135px;
+}
+.mainKashaContent .iframeKashaText {
+    text-align: center;
+    background-color: #71cff4;
+    opacity: 0.9;
+    width: 370px;
+    height: 500px;
+}
+.mainKashaContent .iframeKashaText h1 {
+    font-size: 30px;
+    font-weight: 300;
+    padding-top: 30px;
+    padding-bottom: 25px;
+    color: #fefefe;
+    line-height: 100%;
+}
+.mainKashaContent .iframeKashaText h1::after {
+    content: " Hours";
+    font-weight: 600;
+}
+.mainKashaContent .iframeKashaText .iframeContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid #fefefe;
+    box-sizing: border-box;
+    margin: 0 20px;
+}
+.mainKashaContent .iframeKashaText .iframeContent p, h4 {
+    font-size: 14px;
+    color: #fefefe;
+    font-weight: 400;
+}
+.mainKashaContent .iframeKashaText .iframeContent .iframeContentBox {
+    display: flex;
+    align-items: center;
+}
+.mainKashaContent .iframeKashaText .iframeContent .iframeContentBox img {
+    padding-right: 20px;
+}
+.mainKashaContent .iframeKashaText h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fefefe;
+    font-weight: 400;
+    padding-top: 25px;
+    line-height: 115%;
+}
+.mainKashaContent .iframeKashaText h3 {
+    font-size: 30px;
+    font-weight: 600;
+    font-style: italic;
+    color: #fefefe; 
+    padding-top: 20px;
+    padding-bottom: 25px;
+    line-height: 100%;
+}
+.mainKashaContent .mainKashaContentBox {
+    display: flex;
+    flex-wrap: wrap;
+    width: 770px;
+    justify-content: space-between;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox {
+    width: 370px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox h1 {
+    font-size: 30px;
+    font-weight: 300;
+    color: #57cbf4;
+    padding-bottom: 20px;
+    text-align: center;
+    line-height: 100%;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha {
+    background-color: #a5e5fe;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 40px 0 30px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha.upKasha {
+    padding-top: 19px;
+    padding-bottom: 15px;
+    border-bottom: 0.5px solid #d1f2fe;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha.downKasha {
+    padding-bottom: 19px;
+    padding-top: 15px;
+    border-top: 0.5px solid #d1f2fe;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContentKashaImag {
+    height: 90px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContentKashaImag h2 {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    color: #fefefe;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContentKashaImag img {
+    width: 120px;
+    height: 70px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContenKashaText {
+    width: 160px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContenKashaText h6 {
+    font-size: 10px;
+    color: #fe0000;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContenKashaText h1 {
+    color: #292929;
+    font-size: 18px;
+    padding: 0;
+    font-weight: 500;
+    line-height: 100%;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContenKashaText h3 {
+    font-size: 12px;
+    color: #252525;
+    line-height: 90%;
+    font-weight: normal;
+    padding-bottom: 10px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .evenKasha .evenContentKasha .evenContenKashaText a {
+    font-size: 10px;
+    display: block;
+    width: 85px;
+    line-height: 20px;
+    border: 1px solid #3e4c51;
+    color: #fe0000;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-radius: 3px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .from {
+    background-color: #d4d6d6;
+    padding: 10px 0 0 20px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .from .fromBox {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .from .fromBox .fromText {
+    text-align: left;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .from .fromBox .fromText p {
+    color: #fefefe;
+}
+.mainKashaContent .mainKashaContentBox .maiNextKashaBox .from .fromBox .fromText h5 {
+    color: #848585;
+}
+.mainWhyKashaContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    background-color: #00afec;
+    width: 770px;
+    border-radius: 5px;
+    margin-top: 100px;
+    color: #fefefe;
+    height: 100px;
+}
+.mainWhyKashaContent .mainWhyKashaContentBox {
+    width: 450px;
+}
+.mainWhyKashaContent .mainWhyKashaContentBox .mainWhyKashaContentBoxTitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mainWhyKashaContent .mainWhyKashaContentBox .mainWhyKashaContentBoxTitle h1 {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 26px;
+    padding-right: 15px;
+}
+.mainWhyKashaContent .mainWhyKashaContentBox .mainWhyKashaContentBoxTitle h2 {
+    font-size: 18px;
+    font-weight: 600;
+}
+.mainWhyKashaContent .mainWhyKashaContentBox h3 {
+    font-size: 13px;
+    font-weight: 400;
+    width: 415px;
+    margin: 0 auto;
+}
+.mainWhyKashaContent a {
+    width: 270px;
+    height: 40px;
+    background-color: #ff0000;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #fefefe;
+    text-decoration: none;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
