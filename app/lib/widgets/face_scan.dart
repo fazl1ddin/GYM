@@ -22,14 +22,19 @@ class FaceScanView extends StatefulWidget {
   });
 
   @override
-  State<FaceScanView> createState() => _FaceScanViewState();
+  State<FaceScanView> createState() => FaceScanViewState();
 }
 
-class _FaceScanViewState extends State<FaceScanView> {
+class FaceScanViewState extends State<FaceScanView> {
   CameraController? _controller;
   CameraDescription? _camera;
+  CameraImage? _lastImage;
   bool _busy = false;
   bool _streaming = false;
+
+  /// JPEG текущего кадра (data-URL) для серверной проверки живости.
+  String? snapshotDataUrl() =>
+      _lastImage != null ? FaceService.cameraImageToDataUrl(_lastImage!) : null;
 
   @override
   void initState() {
@@ -63,6 +68,7 @@ class _FaceScanViewState extends State<FaceScanView> {
     if (_streaming || _controller == null) return;
     _streaming = true;
     await _controller!.startImageStream((image) async {
+      _lastImage = image;
       if (_busy) return;
       _busy = true;
       try {

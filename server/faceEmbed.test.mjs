@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { initFaceEmbed, embedFromDataUrl } from './faceEmbed.js';
 import { euclideanDistance } from './face.js';
+import { earFromLandmarks, turnMagnitude, verifyLiveness } from './liveness.js';
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -41,14 +42,41 @@ ok('другой человек → дистанция выше порога (р
 // изображение без лица
 const tf = require('@tensorflow/tfjs-node');
 const blankBuf = await tf.node.encodeJpeg(tf.zeros([160, 160, 3], 'int32'));
-const none = await embedFromDataUrl(`data:image/jpeg;base64,${Buffer.from(blankBuf).toString('base64')}`);
+const blankUrl = `data:image/jpeg;base64,${Buffer.from(blankBuf).toString('base64')}`;
+const none = await embedFromDataUrl(blankUrl);
 ok('кадр без лица → лицо не найдено (null)', none === null);
+
+// ---------- проверка живости: юнит-функции (улучшение №1) ----------
+function makeLm() { return Array.from({ length: 68 }, () => [0, 0]); }
+const openEye = makeLm();
+// левый глаз 36–41, правый 42–47 — «открытые» (большая вертикаль)
+[[36, 0, 0], [39, 10, 0], [37, 3, -3], [38, 7, -3], [41, 3, 3], [40, 7, 3],
+ [42, 0, 0], [45, 10, 0], [43, 3, -3], [44, 7, -3], [47, 3, 3], [46, 7, 3]]
+  .forEach(([i, x, y]) => (openEye[i] = [x, y]));
+const closedEye = makeLm();
+[[36, 0, 0], [39, 10, 0], [37, 3, -0.5], [38, 7, -0.5], [41, 3, 0.5], [40, 7, 0.5],
+ [42, 0, 0], [45, 10, 0], [43, 3, -0.5], [44, 7, -0.5], [47, 3, 0.5], [46, 7, 0.5]]
+  .forEach(([i, x, y]) => (closedEye[i] = [x, y]));
+ok('EAR: открытые глаза > закрытых', earFromLandmarks(openEye) > 0.3 && earFromLandmarks(closedEye) < 0.17,
+  `open=${earFromLandmarks(openEye).toFixed(2)} closed=${earFromLandmarks(closedEye).toFixed(2)}`);
+
+const frontal = makeLm(); frontal[36] = [0, 0]; frontal[45] = [10, 0]; frontal[30] = [5, 0];
+const turned = makeLm(); turned[36] = [0, 0]; turned[45] = [10, 0]; turned[30] = [1, 0];
+ok('поворот: анфас ≈ 0, поворот велик', turnMagnitude(frontal) < 0.15 && turnMagnitude(turned) > 0.5,
+  `front=${turnMagnitude(frontal).toFixed(2)} turned=${turnMagnitude(turned).toFixed(2)}`);
+
+const noFrames = await verifyLiveness('smile', []);
+ok('живость без кадров → не пройдена', noFrames.passed === false);
+const smileNoFace = await verifyLiveness('smile', [blankUrl]);
+ok('живость по пустому кадру → не пройдена', smileNoFace.passed === false);
 
 // ---------- HTTP-путь (реальный сервер, серверный эмбеддинг включён) ----------
 const PORT = 3097;
 const BASE = `http://localhost:${PORT}`;
 const TEST_DATA = mkdtempSync(join(tmpdir(), 'faceclock-face-'));
-const env = { ...process.env, PORT: String(PORT), FACECLOCK_DATA_DIR: TEST_DATA };
+// серверный эмбеддинг ВКЛючён (это цель теста), серверную живость выключаем —
+// её юнит-функции проверены выше; здесь фокус на распознавании и дублях
+const env = { ...process.env, PORT: String(PORT), FACECLOCK_DATA_DIR: TEST_DATA, FACECLOCK_SERVER_LIVENESS: 'off' };
 
 await new Promise((res, rej) => {
   const p = spawn('node', ['--experimental-sqlite', 'server/seed.js'], { cwd: ROOT, env, stdio: 'ignore' });
@@ -97,6 +125,16 @@ try {
 
   r = await checkin(dataUrl(farImg));
   ok('отметка чужим лицом → pending (не засчитано)', r.data.status === 'pending', `d=${r.data.similarity} flags=${JSON.stringify(r.data.riskFlags)}`);
+
+  // ---------- детекция дублей лица при регистрации (улучшение №4) ----------
+  await call('/api/login', { method: 'POST', body: { login: 'admin', password: 'admin123' } });
+  const created = await call('/api/admin/employees', { method: 'POST',
+    body: { name: 'Двойник', login: 'dup' + Date.now(), password: 'dup12345', role: 'employee' } });
+  const dupLogin = created.data.employee.login;
+  // назначим пароль известный — уже задан при создании
+  await call('/api/login', { method: 'POST', body: { login: dupLogin, password: 'dup12345' } });
+  r = await call('/api/enroll', { method: 'POST', body: { photo: dataUrl('sample1.jpg'), deviceId: 'dev-2' } });
+  ok('чужое уже зарегистрированное лицо → 409 (дубль)', r.status === 409, r.data?.error || '');
 
   console.log(`\n${failed === 0 ? '✅' : '❌'} Пройдено ${passed}, провалено ${failed}`);
 } finally {

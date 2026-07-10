@@ -1,9 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' show Size;
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -58,6 +57,45 @@ class FaceService {
 
   static Future<List<Face>> detectFromInputImage(InputImage input) =>
       detector.processImage(input);
+
+  /// Кадр камеры → JPEG (data-URL) для серверной проверки живости.
+  /// Поддерживает NV21 (Android) и BGRA8888 (iOS). Возвращает null при сбое.
+  static String? cameraImageToDataUrl(CameraImage image) {
+    try {
+      final w = image.width, h = image.height;
+      final out = img.Image(width: w, height: h);
+      if (image.format.group == ImageFormatGroup.bgra8888) {
+        final bytes = image.planes.first.bytes;
+        final rowStride = image.planes.first.bytesPerRow;
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            final i = y * rowStride + x * 4;
+            out.setPixelRgb(x, y, bytes[i + 2], bytes[i + 1], bytes[i]);
+          }
+        }
+      } else {
+        // NV21: Y-плоскость + чередующиеся V,U
+        final nv21 = image.planes.first.bytes;
+        final frameSize = w * h;
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            final yv = nv21[y * w + x] & 0xff;
+            final uvIndex = frameSize + (y >> 1) * w + (x & ~1);
+            final v = (nv21[uvIndex] & 0xff) - 128;
+            final u = (nv21[uvIndex + 1] & 0xff) - 128;
+            var r = (yv + 1.370705 * v).round();
+            var g = (yv - 0.337633 * u - 0.698001 * v).round();
+            var b = (yv + 1.732446 * u).round();
+            out.setPixelRgb(x, y, r.clamp(0, 255), g.clamp(0, 255), b.clamp(0, 255));
+          }
+        }
+      }
+      final jpg = img.encodeJpg(out, quality: 80);
+      return 'data:image/jpeg;base64,${base64Encode(jpg)}';
+    } catch (_) {
+      return null;
+    }
+  }
 
   // ---------- Эмбеддинг из готового снимка (файла) ----------
   static Future<List<double>> embedFromFile(String path, Face face) async {

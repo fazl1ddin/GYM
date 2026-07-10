@@ -30,6 +30,9 @@ export function scoreRisk(ctx) {
   if (ctx.deviceMismatch) { score += 35; flags.push('другое устройство'); }
   if (ctx.deviceNew) { score += 10; flags.push('новое устройство'); }
 
+  // Не отсканирован обязательный QR на проходной
+  if (ctx.qrRequiredMissing) { score += 40; flags.push('нет/неверный QR проходной'); }
+
   // Root/эмулятор/mock (флаг от клиента, дополнительно проверяется)
   if (ctx.clientFlags?.mockLocation) { score += 50; flags.push('подмена геопозиции'); }
   if (ctx.clientFlags?.rooted) { score += 20; flags.push('root/jailbreak'); }

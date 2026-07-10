@@ -140,10 +140,11 @@ class Workplace {
   final double? lat;
   final double? lng;
   final int radiusM;
-  Workplace({required this.id, required this.name, this.address, this.lat, this.lng, required this.radiusM});
+  final bool requireQr;
+  Workplace({required this.id, required this.name, this.address, this.lat, this.lng, required this.radiusM, this.requireQr = false});
   factory Workplace.fromJson(Map<String, dynamic> j) => Workplace(
         id: j['id'], name: j['name'], address: j['address'],
         lat: (j['lat'] as num?)?.toDouble(), lng: (j['lng'] as num?)?.toDouble(),
-        radiusM: j['radiusM'] ?? 150,
+        radiusM: j['radiusM'] ?? 150, requireQr: j['requireQr'] ?? false,
       );
 }

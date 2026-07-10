@@ -3,6 +3,7 @@ import '../../api/api_client.dart';
 import '../../api/models.dart';
 import '../../services/location_service.dart';
 import '../../theme.dart';
+import 'qr_terminal_screen.dart';
 
 class WorkplacesScreen extends StatefulWidget {
   const WorkplacesScreen({super.key});
@@ -85,6 +86,12 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
                           ),
                         ),
                         IconButton(
+                          tooltip: 'Показать QR терминала',
+                          icon: const Icon(Icons.qr_code_2, color: AppColors.accent),
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => QrTerminalScreen(workplaceId: w.id, workplaceName: w.name))),
+                        ),
+                        IconButton(
                           icon: const Icon(Icons.delete_outline, color: AppColors.danger),
                           onPressed: () => _delete(w),
                         ),
@@ -110,6 +117,7 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
   final _lat = TextEditingController();
   final _lng = TextEditingController();
   final _radius = TextEditingController(text: '150');
+  bool _requireQr = false;
   bool _saving = false;
   String? _error;
 
@@ -134,6 +142,7 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
         'lat': double.tryParse(_lat.text),
         'lng': double.tryParse(_lng.text),
         'radiusM': int.tryParse(_radius.text) ?? 150,
+        'requireQr': _requireQr,
       });
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -173,6 +182,14 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
             ),
             const SizedBox(height: 4),
             TextField(controller: _radius, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Радиус геозоны, м')),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Требовать QR проходной'),
+              subtitle: const Text('Отметка только после сканирования кода терминала'),
+              value: _requireQr,
+              activeColor: AppColors.accent,
+              onChanged: (v) => setState(() => _requireQr = v),
+            ),
             if (_error != null) ...[
               const SizedBox(height: 10),
               Text(_error!, style: const TextStyle(color: AppColors.danger)),

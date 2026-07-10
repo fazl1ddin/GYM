@@ -83,3 +83,11 @@ CREATE TABLE IF NOT EXISTS attendance (
 CREATE INDEX IF NOT EXISTS idx_att_emp ON attendance(employee_id, server_time);
 CREATE INDEX IF NOT EXISTS idx_att_status ON attendance(status);
 `);
+
+// --- идемпотентные миграции для уже существующих БД ---
+function addColumn(table, def) {
+  try { db.exec(`ALTER TABLE ${table} ADD COLUMN ${def}`); } catch { /* уже есть */ }
+}
+addColumn('workplaces', 'qr_secret TEXT');    // секрет для динамического QR (улучшение №3)
+addColumn('workplaces', 'require_qr INTEGER NOT NULL DEFAULT 0'); // требовать QR на этом месте
+addColumn('attendance', 'qr_ok INTEGER');     // прошёл ли QR-код при отметке

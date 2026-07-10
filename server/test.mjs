@@ -6,6 +6,7 @@ import { rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { currentCode, validateCode, parsePayload, qrPayload, newSecret } from './qr.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -56,9 +57,11 @@ function ok(name, cond, extra = '') {
 // подготовка окружения
 await sh('npm', ['run', 'seed']);
 
-// логический тест использует клиентские векторы (без ML) — детерминирован и быстр
+// логический тест использует клиентские сигналы (без ML) — детерминирован и быстр
 const server = spawn('node', ['--experimental-sqlite', 'server/index.js'], {
-  cwd: ROOT, env: { ...process.env, PORT: String(PORT), FACECLOCK_SERVER_EMBED: 'off' }, stdio: 'ignore',
+  cwd: ROOT,
+  env: { ...process.env, PORT: String(PORT), FACECLOCK_SERVER_EMBED: 'off', FACECLOCK_SERVER_LIVENESS: 'off' },
+  stdio: 'ignore',
 });
 try {
   await waitUp();
@@ -122,6 +125,24 @@ try {
   await call('/api/login', { method: 'POST', body: { login: 'aziz', password: 'aziz123' } });
   r = await call('/api/admin/employees');
   ok('сотрудник НЕ имеет доступа к админке', r.status === 403);
+
+  // ---- динамический QR (модуль, улучшение №3) ----
+  const secret = newSecret();
+  const now = Date.now();
+  const { code } = currentCode(secret, now);
+  ok('QR: свежий код валиден', validateCode(secret, code, now));
+  ok('QR: чужой код невалиден', !validateCode(secret, 'ЧУЖОЙ12345', now));
+  ok('QR: код истекает через 2 окна', !validateCode(secret, code, now + 65_000));
+  const p = parsePayload(qrPayload(7, secret, now));
+  ok('QR: payload разбирается', p && p.workplaceId === 7);
+
+  // ---- блокировка перебора пароля (улучшение №5) ----
+  let lastStatus = 0;
+  for (let i = 0; i < 6; i++) {
+    const rr = await call('/api/login', { method: 'POST', body: { login: 'nobody', password: 'x' } });
+    lastStatus = rr.status;
+  }
+  ok('перебор пароля → блокировка (429)', lastStatus === 429);
 
   console.log(`\n${failed === 0 ? '✅' : '❌'} Пройдено ${passed}, провалено ${failed}`);
 } finally {

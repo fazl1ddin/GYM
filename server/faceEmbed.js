@@ -27,6 +27,7 @@ export async function initFaceEmbed() {
     await faceapi.nets.ssdMobilenetv1.loadFromDisk(modelPath);
     await faceapi.nets.faceLandmark68Net.loadFromDisk(modelPath);
     await faceapi.nets.faceRecognitionNet.loadFromDisk(modelPath);
+    await faceapi.nets.faceExpressionNet.loadFromDisk(modelPath); // для проверки живости
     ready = true;
     console.log('face-api: модели распознавания загружены (backend=%s)', tf.getBackend());
     return true;
@@ -56,6 +57,28 @@ export async function embedFromDataUrl(dataUrl) {
       .withFaceDescriptor();
     if (!res) return null;
     return { descriptor: Array.from(res.descriptor) };
+  } finally {
+    tensor.dispose();
+  }
+}
+
+/// Анализ кадра для проверки живости: ландмарки лица + эмоции.
+/// Возвращает { landmarks:[[x,y]...68], expressions:{happy,...} } или null.
+export async function analyzeFrame(dataUrl) {
+  if (!ready) throw new Error('face-api не инициализирован');
+  const m = typeof dataUrl === 'string' ? dataUrl.match(/^data:image\/\w+;base64,(.+)$/s) : null;
+  const b64 = m ? m[1] : dataUrl;
+  const tensor = tf.node.decodeImage(Buffer.from(b64, 'base64'), 3);
+  try {
+    const res = await faceapi
+      .detectSingleFace(tensor, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.4 }))
+      .withFaceLandmarks()
+      .withFaceExpressions();
+    if (!res) return null;
+    return {
+      landmarks: res.landmarks.positions.map((p) => [p.x, p.y]),
+      expressions: res.expressions,
+    };
   } finally {
     tensor.dispose();
   }

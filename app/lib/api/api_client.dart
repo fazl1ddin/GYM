@@ -118,13 +118,16 @@ class ApiClient {
     List<double>? embedding,
     String? photoBase64,
     required Map<String, dynamic> liveness,
+    List<String>? livenessFrames,
+    String? qr,
     Map<String, dynamic>? geo,
     required String deviceId,
     Map<String, dynamic>? clientFlags,
   }) async {
     final d = await _request('POST', '/api/checkin', {
       'type': type, 'nonce': nonce, 'embedding': embedding, 'photo': photoBase64,
-      'liveness': liveness, 'geo': geo, 'deviceId': deviceId, 'clientFlags': clientFlags,
+      'liveness': liveness, 'livenessFrames': livenessFrames, 'qr': qr,
+      'geo': geo, 'deviceId': deviceId, 'clientFlags': clientFlags,
     });
     return CheckinResult.fromJson(d);
   }
@@ -159,6 +162,8 @@ class ApiClient {
   Future<void> createWorkplace(Map<String, dynamic> body) =>
       _request('POST', '/api/admin/workplaces', body);
   Future<void> deleteWorkplace(int id) => _request('DELETE', '/api/admin/workplaces/$id');
+  Future<Map<String, dynamic>> workplaceQr(int id) async =>
+      Map<String, dynamic>.from(await _request('GET', '/api/admin/workplaces/$id/qr'));
 
   Future<List<AttendanceRecord>> anomalies() async {
     final d = await _request('GET', '/api/admin/anomalies');

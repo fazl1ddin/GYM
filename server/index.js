@@ -6,13 +6,21 @@ import { db, PHOTOS_DIR } from './db.js';
 import {
   POLICY, hashPassword, verifyPassword, signSession, verifySession, randomNonce,
 } from './security.js';
-import { isValidEmbedding, bestSimilarity, bestDistance } from './face.js';
+import { isValidEmbedding, bestSimilarity, bestDistance, euclideanDistance } from './face.js';
 import { checkGeozone } from './geo.js';
 import { scoreRisk } from './risk.js';
 import { initFaceEmbed, isReady as faceReady, embedFromDataUrl } from './faceEmbed.js';
+import { verifyLiveness } from './liveness.js';
+import { currentCode, qrPayload, validateCode, parsePayload, newSecret } from './qr.js';
+import {
+  isLocked, lockRemainingSec, registerFail, registerSuccess,
+  makeRateLimiter, securityHeaders,
+} from './ratelimit.js';
 
 const app = express();
-app.use(express.json({ limit: '12mb' }));
+app.set('trust proxy', true);
+app.use(securityHeaders);
+app.use(express.json({ limit: '16mb' }));
 
 // -------- cookie helpers --------
 function parseCookies(req) {
@@ -70,12 +78,24 @@ function publicEmployee(e) {
 }
 
 // ================= AUTH =================
-app.post('/api/login', (req, res) => {
+const loginLimiter = makeRateLimiter({ windowMs: 60_000, max: 20 });
+app.post('/api/login', loginLimiter, (req, res) => {
   const { login, password } = req.body || {};
-  const emp = db.prepare('SELECT * FROM employees WHERE login = ?').get(String(login || '').trim());
+  const ip = req.ip || 'unknown';
+  const name = String(login || '').trim();
+
+  // Блокировка перебора паролей (улучшение №5)
+  if (isLocked(name, ip)) {
+    return res.status(429).json({
+      error: `Слишком много попыток. Повторите через ${Math.ceil(lockRemainingSec(name, ip) / 60)} мин.`,
+    });
+  }
+  const emp = db.prepare('SELECT * FROM employees WHERE login = ?').get(name);
   if (!emp || !emp.active || !verifyPassword(String(password || ''), emp.pass_hash)) {
+    registerFail(name, ip);
     return res.status(401).json({ error: 'Неверный логин или пароль' });
   }
+  registerSuccess(name, ip);
   setSession(res, emp);
   res.json({ user: publicEmployee(emp) });
 });
@@ -120,6 +140,16 @@ app.post('/api/enroll', requireAuth, async (req, res) => {
     descriptor = embedding;
   }
 
+  // Детекция дублей: это лицо не должно быть уже привязано к другому сотруднику (№4)
+  if (POLICY.serverSideEmbedding) {
+    const others = db.prepare('SELECT descriptor FROM face_templates WHERE employee_id != ?').all(req.user.id);
+    for (const o of others) {
+      if (euclideanDistance(descriptor, JSON.parse(o.descriptor)) < POLICY.faceDupMaxDistance) {
+        return res.status(409).json({ error: 'Это лицо уже зарегистрировано за другим сотрудником' });
+      }
+    }
+  }
+
   const photoRef = savePhoto(photo);
   db.prepare('INSERT INTO face_templates (employee_id, descriptor, photo_ref) VALUES (?,?,?)')
     .run(req.user.id, JSON.stringify(descriptor), photoRef);
@@ -146,12 +176,15 @@ app.post('/api/checkin/challenge', requireAuth, (req, res) => {
   res.json({
     nonce, challenge, type,
     serverTime: now, expiresAt: now + POLICY.challengeTtlMs,
-    workplace: wp ? { id: wp.id, name: wp.name, address: wp.address, lat: wp.lat, lng: wp.lng, radiusM: wp.radius_m } : null,
+    workplace: wp ? {
+      id: wp.id, name: wp.name, address: wp.address, lat: wp.lat, lng: wp.lng,
+      radiusM: wp.radius_m, requireQr: !!wp.require_qr,
+    } : null,
   });
 });
 
 app.post('/api/checkin', requireAuth, async (req, res) => {
-  const { type, nonce, embedding, photo, liveness, geo, deviceId, clientFlags } = req.body || {};
+  const { type, nonce, embedding, photo, liveness, livenessFrames, qr, geo, deviceId, clientFlags } = req.body || {};
   const now = Date.now();
 
   if (!req.user.enrolled) return res.status(400).json({ error: 'Сначала зарегистрируйте лицо' });
@@ -170,17 +203,27 @@ app.post('/api/checkin', requireAuth, async (req, res) => {
   db.prepare('UPDATE challenges SET used = 1 WHERE nonce = ?').run(nonce); // consume
   if (ch.kind !== (type === 'out' ? 'out' : 'in')) return res.status(400).json({ error: 'Тип отметки не совпадает' });
 
-  // --- 2. Живость: клиент должен был выполнить ИМЕННО выданное действие (уровень 1) ---
-  const livenessScore = Number(liveness?.score ?? 0);
-  const passedChallenge = liveness?.challenge === ch.challenge && liveness?.passed === true;
-  if (POLICY.requireLiveness && !passedChallenge) {
-    // выполнено не то действие, что запросил сервер → вероятная подделка/запись
+  // --- 2. Живость: выполнено ИМЕННО выданное действие (уровень 1) ---
+  // При серверной проверке сервер сам анализирует кадры (не доверяет клиенту).
+  let livenessScore, livenessPassed, livenessReason = null;
+  if (POLICY.serverSideLiveness) {
+    const v = await verifyLiveness(ch.challenge, livenessFrames);
+    livenessPassed = v.passed;
+    livenessScore = v.score;
+    livenessReason = v.reason;
+  } else {
+    livenessScore = Number(liveness?.score ?? 0);
+    livenessPassed = liveness?.challenge === ch.challenge && liveness?.passed === true;
+  }
+  if (POLICY.requireLiveness && !livenessPassed) {
+    // не то действие / подделка / запись → жёсткий отказ
     db.prepare(`INSERT INTO attendance
       (employee_id,type,server_time,liveness_score,liveness_challenge,risk_score,risk_flags,status,photo_ref,device_id)
       VALUES (?,?,?,?,?,?,?,?,?,?)`).run(
       req.user.id, ch.kind, now, livenessScore, ch.challenge, 100,
-      JSON.stringify(['провал проверки живости']), 'rejected', savePhoto(photo), deviceId || null);
-    return res.status(400).json({ error: 'Проверка живости не пройдена. Повторите.' });
+      JSON.stringify([`провал проверки живости${livenessReason ? ': ' + livenessReason : ''}`]),
+      'rejected', savePhoto(photo), deviceId || null);
+    return res.status(400).json({ error: `Проверка живости не пройдена${livenessReason ? ': ' + livenessReason : ''}. Повторите.` });
   }
 
   // --- 3. Сравнение лица на сервере (уровень 1/2) ---
@@ -218,28 +261,37 @@ app.post('/api/checkin', requireAuth, async (req, res) => {
     ? db.prepare('SELECT * FROM workplaces WHERE id = ?').get(req.user.workplace_id) : null;
   const geoCheck = geo ? checkGeozone(wp, geo.lat, geo.lng) : { inside: false, distance: null, reason: 'no_location' };
 
+  // --- 5b. Динамический QR на проходной (уровень 3, улучшение №3) ---
+  let qrOk = null, qrRequiredMissing = false;
+  if (wp?.qr_secret) {
+    const parsed = parsePayload(qr);
+    qrOk = !!(parsed && parsed.workplaceId === wp.id && validateCode(wp.qr_secret, parsed.code, now));
+    if (wp.require_qr && !qrOk) qrRequiredMissing = true;
+  }
+
   // --- 6. Риск-скоринг (уровень 4) ---
   const risk = scoreRisk({
     geo: geoCheck, accuracy: geo?.accuracy, workplace: wp,
     faceMatched: matched, faceWeak,
     liveness: livenessScore, minLiveness: POLICY.livenessMinScore,
-    deviceMismatch, deviceNew, clientFlags,
+    deviceMismatch, deviceNew, clientFlags, qrRequiredMissing,
   });
 
   // --- Итоговый статус ---
   const inGeo = !POLICY.requireGeo || geoCheck.inside;
-  const live = !POLICY.requireLiveness || (passedChallenge && livenessScore >= POLICY.livenessMinScore);
-  const ok = matched && live && inGeo && risk.score <= POLICY.autoConfirmMaxRisk;
+  const live = !POLICY.requireLiveness || (livenessPassed && livenessScore >= POLICY.livenessMinScore);
+  const qrPass = !qrRequiredMissing;
+  const ok = matched && live && inGeo && qrPass && risk.score <= POLICY.autoConfirmMaxRisk;
   const status = ok ? 'confirmed' : 'pending'; // спорные → очередь аномалий, не засчитываются автоматически
 
   const photoRef = savePhoto(photo);
   const info = db.prepare(`INSERT INTO attendance
     (employee_id,type,server_time,geo_lat,geo_lng,geo_accuracy,distance_m,workplace_id,
-     match_distance,liveness_score,liveness_challenge,risk_score,risk_flags,status,photo_ref,device_id)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+     match_distance,liveness_score,liveness_challenge,risk_score,risk_flags,status,photo_ref,device_id,qr_ok)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
     req.user.id, ch.kind, now, geo?.lat ?? null, geo?.lng ?? null, geo?.accuracy ?? null,
     geoCheck.distance ?? null, wp?.id ?? null, faceMetric, livenessScore, ch.challenge,
-    risk.score, JSON.stringify(risk.flags), status, photoRef, deviceId || null);
+    risk.score, JSON.stringify(risk.flags), status, photoRef, deviceId || null, qrOk == null ? null : (qrOk ? 1 : 0));
 
   res.json({
     id: info.lastInsertRowid,
@@ -323,22 +375,35 @@ app.delete('/api/admin/employees/:id', requireAuth, requireAdmin, (req, res) => 
 // ---- workplaces ----
 app.get('/api/admin/workplaces', requireAuth, requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT * FROM workplaces ORDER BY name').all();
-  res.json({ workplaces: rows.map((w) => ({ id: w.id, name: w.name, address: w.address, lat: w.lat, lng: w.lng, radiusM: w.radius_m })) });
+  res.json({ workplaces: rows.map((w) => ({
+    id: w.id, name: w.name, address: w.address, lat: w.lat, lng: w.lng,
+    radiusM: w.radius_m, requireQr: !!w.require_qr, hasQr: !!w.qr_secret })) });
 });
 app.post('/api/admin/workplaces', requireAuth, requireAdmin, (req, res) => {
-  const { name, address, lat, lng, radiusM } = req.body || {};
+  const { name, address, lat, lng, radiusM, requireQr } = req.body || {};
   if (!name) return res.status(400).json({ error: 'Укажите название' });
-  const info = db.prepare('INSERT INTO workplaces (name,address,lat,lng,radius_m) VALUES (?,?,?,?,?)')
-    .run(String(name).trim(), address || null, lat ?? null, lng ?? null, radiusM || 150);
+  const info = db.prepare('INSERT INTO workplaces (name,address,lat,lng,radius_m,qr_secret,require_qr) VALUES (?,?,?,?,?,?,?)')
+    .run(String(name).trim(), address || null, lat ?? null, lng ?? null, radiusM || 150, newSecret(), requireQr ? 1 : 0);
   res.json({ id: info.lastInsertRowid });
+});
+// Текущий QR-код терминала для показа на экране рабочего места (улучшение №3).
+app.get('/api/admin/workplaces/:id/qr', requireAuth, requireAdmin, (req, res) => {
+  const w = db.prepare('SELECT * FROM workplaces WHERE id = ?').get(Number(req.params.id));
+  if (!w) return res.status(404).json({ error: 'Не найдено' });
+  if (!w.qr_secret) db.prepare('UPDATE workplaces SET qr_secret = ? WHERE id = ?').run(newSecret(), w.id);
+  const secret = db.prepare('SELECT qr_secret FROM workplaces WHERE id = ?').get(w.id).qr_secret;
+  const { secondsLeft } = currentCode(secret);
+  res.json({ payload: qrPayload(w.id, secret), secondsLeft, windowMs: 30000 });
 });
 app.patch('/api/admin/workplaces/:id', requireAuth, requireAdmin, (req, res) => {
   const id = Number(req.params.id);
   const { name, address, lat, lng, radiusM } = req.body || {};
   const w = db.prepare('SELECT * FROM workplaces WHERE id = ?').get(id);
   if (!w) return res.status(404).json({ error: 'Не найдено' });
-  db.prepare('UPDATE workplaces SET name=?,address=?,lat=?,lng=?,radius_m=? WHERE id=?').run(
-    name ?? w.name, address ?? w.address, lat ?? w.lat, lng ?? w.lng, radiusM ?? w.radius_m, id);
+  const { requireQr } = req.body || {};
+  db.prepare('UPDATE workplaces SET name=?,address=?,lat=?,lng=?,radius_m=?,require_qr=? WHERE id=?').run(
+    name ?? w.name, address ?? w.address, lat ?? w.lat, lng ?? w.lng, radiusM ?? w.radius_m,
+    requireQr == null ? w.require_qr : (requireQr ? 1 : 0), id);
   res.json({ ok: true });
 });
 app.delete('/api/admin/workplaces/:id', requireAuth, requireAdmin, (req, res) => {

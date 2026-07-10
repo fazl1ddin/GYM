@@ -18,7 +18,9 @@ dependencies:
   shared_preferences: ^2.3.3            # хранение id устройства / базового URL
   device_info_plus: ^11.2.0             # id устройства, признаки эмулятора
   image: ^4.3.0                         # обрезка/кодирование кадра лица
-  tflite_flutter: ^0.11.0               # эмбеддинг лица (MobileFaceNet)
+  mobile_scanner: ^5.2.3                # сканирование динамического QR проходной
+  qr_flutter: ^4.1.0                    # показ динамического QR на терминале места
+  tflite_flutter: ^0.11.0               # (опц.) эмбеддинг лица на устройстве
 
 dev_dependencies:
   flutter_lints: ^4.0.0

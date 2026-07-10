@@ -20,6 +20,8 @@ export const POLICY = {
   serverSideEmbedding: process.env.FACECLOCK_SERVER_EMBED !== 'off',
   faceMatchMaxDistance: 0.55,  // евклидово расстояние дескрипторов: меньше — совпадение
   faceMatchMinSimilarity: 0.6, // косинусное сходство (запасной клиентский путь)
+  faceDupMaxDistance: 0.45,    // дубль лица при регистрации, если ближе этого (улучшение №4)
+  serverSideLiveness: process.env.FACECLOCK_SERVER_LIVENESS !== 'off', // живость проверяет сервер (№1)
   livenessMinScore: 0.6,       // минимальный балл живости
   challengeTtlMs: 60_000,      // время жизни liveness-челленджа
   requireGeo: true,            // обязательна геозона
