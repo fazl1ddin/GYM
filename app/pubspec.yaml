@@ -1,0 +1,29 @@
+name: faceclock
+description: "FaceClock — учёт рабочего времени по распознаванию лица"
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.2.2                          # обращение к API
+  provider: ^6.1.2                      # состояние (сессия)
+  camera: ^0.11.0+2                     # камера для съёмки лица
+  google_mlkit_face_detection: ^0.13.1  # детекция лица + сигналы живости
+  geolocator: ^13.0.2                   # геолокация (геозона)
+  shared_preferences: ^2.3.3            # хранение id устройства / базового URL
+  device_info_plus: ^11.2.0             # id устройства, признаки эмулятора
+  image: ^4.3.0                         # обрезка/кодирование кадра лица
+  tflite_flutter: ^0.11.0               # эмбеддинг лица (MobileFaceNet)
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/models/

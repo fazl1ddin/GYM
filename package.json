@@ -1,0 +1,17 @@
+{
+  "name": "faceclock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Учёт рабочего времени по распознаванию лица с защитой от недобросовестных отметок",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --experimental-sqlite server/index.js",
+    "seed": "node --experimental-sqlite server/seed.js"
+  },
+  "dependencies": {
+    "express": "^4.22.2"
+  }
+}
