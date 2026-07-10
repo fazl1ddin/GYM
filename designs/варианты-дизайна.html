@@ -1,0 +1,387 @@
+<title>FaceClock — варианты дизайна</title>
+<style>
+  :root {
+    --bg: #eef1f4;
+    --panel: #ffffff;
+    --ink: #1b2430;
+    --ink-soft: #5a6675;
+    --line: #dce1e8;
+    --accent: #2b5cff;
+    --shadow: 0 18px 50px -22px rgba(20,30,55,.35);
+    --radius: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10141b;
+      --panel: #171d27;
+      --ink: #eaf0f7;
+      --ink-soft: #97a3b4;
+      --line: #262f3c;
+      --accent: #6f8dff;
+      --shadow: 0 22px 55px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f4; --panel: #ffffff; --ink: #1b2430; --ink-soft: #5a6675;
+    --line: #dce1e8; --accent: #2b5cff; --shadow: 0 18px 50px -22px rgba(20,30,55,.35);
+  }
+  :root[data-theme="dark"] {
+    --bg: #10141b; --panel: #171d27; --ink: #eaf0f7; --ink-soft: #97a3b4;
+    --line: #262f3c; --accent: #6f8dff; --shadow: 0 22px 55px -20px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* ---- page header ---- */
+  .masthead { margin-bottom: 14px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(30px, 5vw, 46px); line-height: 1.05; margin: 0 0 14px;
+    letter-spacing: -.02em; text-wrap: balance; font-weight: 800;
+  }
+  .lede { font-size: 17px; color: var(--ink-soft); max-width: 60ch; margin: 0; }
+  .howto {
+    margin: 26px 0 8px; padding: 14px 18px; border: 1px solid var(--line);
+    border-radius: 14px; background: var(--panel); font-size: 14.5px;
+    color: var(--ink-soft); box-shadow: var(--shadow);
+  }
+  .howto b { color: var(--ink); }
+
+  /* ---- variant block ---- */
+  .variant { padding: 46px 0; border-top: 1px solid var(--line); }
+  .variant:first-of-type { border-top: none; }
+  .v-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .v-tag {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 8px; padding: 2px 9px;
+  }
+  .v-name { font-size: 25px; font-weight: 800; letter-spacing: -.01em; margin: 0; }
+  .v-desc { color: var(--ink-soft); max-width: 62ch; margin: 8px 0 0; font-size: 15.5px; }
+  .v-traits { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 2px; }
+  .chip {
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+    color: var(--ink); border: 1px solid var(--line);
+  }
+  .v-body { display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start; margin-top: 26px; }
+  .screens { display: flex; gap: 20px; flex-wrap: wrap; }
+  .screen-label { text-align: center; font-size: 12.5px; color: var(--ink-soft); margin-top: 10px; }
+
+  /* ---- phone frame ---- */
+  .phone {
+    width: 248px; border-radius: 34px; padding: 9px;
+    background: #05070b;
+    box-shadow: var(--shadow), 0 0 0 1.5px rgba(255,255,255,.06) inset;
+    flex: 0 0 auto;
+  }
+  .phone .glass {
+    border-radius: 26px; overflow: hidden; position: relative;
+    height: 500px; display: flex; flex-direction: column;
+  }
+  .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 92px; height: 22px; background: #05070b; border-radius: 0 0 13px 13px; z-index: 6;
+  }
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 18px 4px; font-size: 12px; font-weight: 600; position: relative; z-index: 5;
+  }
+
+  /* ============ VARIANT A — Ясный день ============ */
+  .a-scr { background: #f5f7fb; color: #1a2233; font-family: system-ui, sans-serif; }
+  .a-scr .status-bar { color: #1a2233; }
+  .a-pad { padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; overflow: hidden; }
+  .a-hi { display: flex; align-items: center; justify-content: space-between; }
+  .a-hi small { color: #7a8699; font-size: 12px; }
+  .a-hi strong { display: block; font-size: 18px; font-weight: 800; }
+  .a-ava { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#2b5cff,#57c8ff); }
+  .a-card {
+    background: #fff; border-radius: 18px; padding: 18px;
+    box-shadow: 0 12px 30px -18px rgba(30,50,90,.4); border: 1px solid #e7ecf3;
+  }
+  .a-state { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #16a06a; font-weight: 700; }
+  .a-dot { width: 8px; height: 8px; border-radius: 50%; background: #16a06a; box-shadow: 0 0 0 4px rgba(22,160,106,.16); }
+  .a-time { font-size: 40px; font-weight: 800; letter-spacing: -.02em; margin: 8px 0 2px; font-variant-numeric: tabular-nums; }
+  .a-sub { font-size: 12.5px; color: #7a8699; }
+  .a-btn {
+    margin-top: auto; background: #2b5cff; color: #fff; text-align: center;
+    padding: 15px; border-radius: 15px; font-weight: 800; font-size: 15.5px;
+    box-shadow: 0 12px 24px -10px rgba(43,92,255,.6);
+  }
+  .a-geo { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #16a06a; justify-content: center; }
+  .a-list { display: flex; flex-direction: column; gap: 8px; }
+  .a-row { display: flex; justify-content: space-between; font-size: 13px; padding: 9px 12px; background: #fff; border-radius: 12px; border: 1px solid #eef1f6; }
+  .a-row span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* variant A scan screen */
+  .a-scan { background: #eef2f8; color: #1a2233; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 30px 18px 18px; gap: 16px; }
+  .a-oval {
+    width: 168px; height: 210px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #d6e2f5, #c2d2ec);
+    border: 3px dashed #2b5cff; display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .a-oval::after { content: "🙂"; font-size: 60px; filter: grayscale(.2); }
+  .a-scan h3 { margin: 4px 0 0; font-size: 17px; }
+  .a-scan p { margin: 0; font-size: 13px; color: #7a8699; text-align: center; }
+  .a-prompt { background: #2b5cff; color: #fff; padding: 9px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 700; }
+  .a-cancel { margin-top: auto; color: #7a8699; font-size: 13.5px; font-weight: 600; }
+
+  /* ============ VARIANT B — Ночная смена ============ */
+  .b-scr { background: #0c1119; color: #e8eef7; }
+  .b-scr .status-bar { color: #cdd7e5; }
+  .b-pad { padding: 6px 18px 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .b-hi { display: flex; align-items: center; justify-content: space-between; }
+  .b-hi small { color: #6f7d90; font-size: 12px; }
+  .b-hi strong { display: block; font-size: 18px; font-weight: 800; }
+  .b-ava { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#1de29a,#12a3ff); }
+  .b-card {
+    background: linear-gradient(160deg,#141c28,#101722); border: 1px solid #202b3a;
+    border-radius: 18px; padding: 18px; position: relative; overflow: hidden;
+  }
+  .b-card::before { content:""; position:absolute; inset:0; background: radial-gradient(120px 90px at 85% 0%, rgba(29,226,154,.18), transparent 70%); }
+  .b-state { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #1de29a; font-weight: 700; position: relative; }
+  .b-dot { width: 8px; height: 8px; border-radius: 50%; background: #1de29a; box-shadow: 0 0 10px #1de29a; }
+  .b-time { font-size: 40px; font-weight: 800; letter-spacing: -.02em; margin: 8px 0 2px; position: relative; font-variant-numeric: tabular-nums; }
+  .b-sub { font-size: 12.5px; color: #8090a3; position: relative; }
+  .b-btn {
+    margin-top: auto; background: linear-gradient(135deg,#1de29a,#12b47a); color: #04140d;
+    text-align: center; padding: 15px; border-radius: 15px; font-weight: 800; font-size: 15.5px;
+    box-shadow: 0 10px 30px -8px rgba(29,226,154,.5);
+  }
+  .b-geo { display:flex; align-items:center; gap:7px; font-size:12px; color:#1de29a; justify-content:center; }
+  .b-list { display:flex; flex-direction:column; gap:8px; }
+  .b-row { display:flex; justify-content:space-between; font-size:13px; padding:9px 12px; background:#121a26; border-radius:12px; border:1px solid #1e2837; }
+  .b-row span:last-child { font-weight:700; color:#cdd7e5; font-variant-numeric: tabular-nums; }
+
+  .b-scan { background: radial-gradient(80% 60% at 50% 35%, #16202e, #080c12); color:#e8eef7; flex:1; display:flex; flex-direction:column; align-items:center; padding:30px 18px 18px; gap:16px; }
+  .b-ring { width:180px; height:180px; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center; }
+  .b-ring::before { content:""; position:absolute; inset:0; border-radius:50%; border:3px solid #1de29a; box-shadow:0 0 26px rgba(29,226,154,.55), inset 0 0 26px rgba(29,226,154,.25); }
+  .b-ring::after { content:"🙂"; font-size:64px; }
+  .b-scan h3 { margin:4px 0 0; font-size:17px; }
+  .b-scan p { margin:0; font-size:13px; color:#8090a3; text-align:center; }
+  .b-prompt { background: rgba(29,226,154,.15); color:#1de29a; border:1px solid rgba(29,226,154,.4); padding:9px 16px; border-radius:999px; font-size:13.5px; font-weight:700; }
+  .b-cancel { margin-top:auto; color:#6f7d90; font-size:13.5px; font-weight:600; }
+
+  /* ============ VARIANT C — Крупные кнопки ============ */
+  .c-scr { background: #fff8f2; color: #241a12; }
+  .c-scr .status-bar { color: #241a12; }
+  .c-pad { padding: 8px 16px 14px; display:flex; flex-direction:column; gap:14px; flex:1; }
+  .c-hi strong { font-size: 22px; font-weight: 900; display:block; }
+  .c-hi small { color:#8a7361; font-size:13px; }
+  .c-state {
+    background:#eafaf0; border:2px solid #bfe9cf; border-radius:16px; padding:12px 16px;
+    display:flex; align-items:center; gap:10px; font-size:16px; font-weight:800; color:#12874e;
+  }
+  .c-state .big { font-size:26px; }
+  .c-timecard { text-align:center; padding:6px 0 2px; }
+  .c-timecard .t { font-size:46px; font-weight:900; font-variant-numeric: tabular-nums; letter-spacing:-.02em; }
+  .c-timecard .l { font-size:14px; color:#8a7361; font-weight:700; }
+  .c-btn {
+    margin-top:auto; background:#f2622a; color:#fff; text-align:center;
+    padding:20px; border-radius:18px; font-weight:900; font-size:19px;
+    box-shadow:0 14px 26px -10px rgba(242,98,42,.6); letter-spacing:.01em;
+  }
+  .c-hint { text-align:center; font-size:13px; color:#8a7361; font-weight:600; }
+
+  .c-scan { background:#fff8f2; color:#241a12; flex:1; display:flex; flex-direction:column; align-items:center; padding:26px 18px 18px; gap:18px; }
+  .c-oval { width:186px; height:230px; border-radius:50%; background:#ffe9dc; border:5px solid #f2622a; display:flex; align-items:center; justify-content:center; }
+  .c-oval::after { content:"🙂"; font-size:70px; }
+  .c-scan h3 { margin:0; font-size:21px; font-weight:900; text-align:center; }
+  .c-prompt { background:#f2622a; color:#fff; padding:12px 22px; border-radius:16px; font-size:17px; font-weight:900; }
+  .c-cancel { margin-top:auto; color:#8a7361; font-size:15px; font-weight:800; }
+
+  .foot { margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 14.5px; }
+  .foot b { color: var(--ink); }
+  @media (max-width: 520px){ .phone{ width: 100%; max-width: 300px; } }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">FaceClock · выбор визуального направления</p>
+    <h1>Три дизайна учёта времени по лицу</h1>
+    <p class="lede">Каждое направление показано на двух ключевых экранах — «Главная / статус смены»
+      и «Сканирование лица». Разница не только в цвете: это разный характер, аудитория и подача.
+      Выберите одно — доработаю его до полного набора экранов.</p>
+    <div class="howto">💡 Как выбрать: скажите <b>«вариант A»</b>, <b>«B»</b> или <b>«C»</b>
+      (или соберите гибрид — например «B, но кнопки как в C»).</div>
+  </header>
+
+  <!-- ============ VARIANT A ============ -->
+  <section class="variant">
+    <div class="v-head">
+      <span class="v-tag">Вариант&nbsp;A</span>
+      <h2 class="v-name">Ясный день</h2>
+    </div>
+    <p class="v-desc">Спокойный светлый корпоративный стиль в духе современных HR- и финтех-приложений.
+      Много воздуха, один уверенный синий акцент, аккуратные карточки. Внушает доверие, легко читается,
+      подходит офисным командам.</p>
+    <div class="v-traits">
+      <span class="chip">Светлая тема</span><span class="chip">Офис / HR</span>
+      <span class="chip">Сдержанно и профессионально</span><span class="chip">Акцент — синий</span>
+    </div>
+    <div class="v-body">
+      <div class="screens">
+        <div>
+          <div class="phone"><div class="glass"><div class="notch"></div>
+            <div class="a-scr" style="flex:1; display:flex; flex-direction:column;">
+              <div class="status-bar"><span>9:41</span><span>▮▮▮ 5G</span></div>
+              <div class="a-pad">
+                <div class="a-hi"><div><small>Доброе утро</small><strong>Азиз Р.</strong></div><div class="a-ava"></div></div>
+                <div class="a-card">
+                  <div class="a-state"><span class="a-dot"></span>Вы на смене</div>
+                  <div class="a-time">04:12</div>
+                  <div class="a-sub">Приход в 09:03 · норма сегодня 8 ч</div>
+                </div>
+                <div class="a-list">
+                  <div class="a-row"><span>Приход</span><span>09:03</span></div>
+                  <div class="a-row"><span>Перерыв</span><span>13:00–13:30</span></div>
+                </div>
+                <div class="a-btn">Отметить уход</div>
+                <div class="a-geo">✓ Вы на рабочем месте</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="screen-label">Главная · статус смены</div>
+        </div>
+        <div>
+          <div class="phone"><div class="glass"><div class="notch"></div>
+            <div class="a-scr" style="flex:1; display:flex; flex-direction:column;">
+              <div class="status-bar"><span>9:41</span><span>▮▮▮ 5G</span></div>
+              <div class="a-scan">
+                <div class="a-oval"></div>
+                <h3>Подтвердите лицо</h3>
+                <div class="a-prompt">Моргните два раза</div>
+                <p>Держите лицо в рамке. Проверяем, что это живой человек.</p>
+                <div class="a-cancel">Отмена</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="screen-label">Сканирование лица</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VARIANT B ============ -->
+  <section class="variant">
+    <div class="v-head">
+      <span class="v-tag">Вариант&nbsp;B</span>
+      <h2 class="v-name">Ночная смена</h2>
+    </div>
+    <p class="v-desc">Тёмная тема с акцентом на момент сканирования: светящееся кольцо «verified»,
+      технологичный и защищённый вид. Камера-центричный интерфейс, где главный герой — проверка лица.
+      Хорош для 24/7-производств, охраны, складов, IT-компаний.</p>
+    <div class="v-traits">
+      <span class="chip">Тёмная тема</span><span class="chip">Технологично / безопасно</span>
+      <span class="chip">Камера в центре</span><span class="chip">Акцент — неон-зелёный</span>
+    </div>
+    <div class="v-body">
+      <div class="screens">
+        <div>
+          <div class="phone"><div class="glass"><div class="notch"></div>
+            <div class="b-scr" style="flex:1; display:flex; flex-direction:column;">
+              <div class="status-bar"><span>9:41</span><span>▮▮▮ 5G</span></div>
+              <div class="b-pad">
+                <div class="b-hi"><div><small>Смена №2 · ночь</small><strong>Азиз Р.</strong></div><div class="b-ava"></div></div>
+                <div class="b-card">
+                  <div class="b-state"><span class="b-dot"></span>На смене</div>
+                  <div class="b-time">04:12</div>
+                  <div class="b-sub">Приход 21:03 · до конца смены 3:48</div>
+                </div>
+                <div class="b-list">
+                  <div class="b-row"><span>Геозона</span><span>✓ на месте</span></div>
+                  <div class="b-row"><span>Живость</span><span>98%</span></div>
+                </div>
+                <div class="b-btn">Отметить уход</div>
+                <div class="b-geo">✓ Подтверждено сервером</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="screen-label">Главная · статус смены</div>
+        </div>
+        <div>
+          <div class="phone"><div class="glass"><div class="notch"></div>
+            <div class="b-scr" style="flex:1; display:flex; flex-direction:column;">
+              <div class="status-bar"><span>9:41</span><span>▮▮▮ 5G</span></div>
+              <div class="b-scan">
+                <div class="b-ring"></div>
+                <h3>Сканирование…</h3>
+                <div class="b-prompt">Поверните голову влево</div>
+                <p>Идёт проверка живости. Не убирайте лицо из кольца.</p>
+                <div class="b-cancel">Отмена</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="screen-label">Сканирование лица</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VARIANT C ============ -->
+  <section class="variant">
+    <div class="v-head">
+      <span class="v-tag">Вариант&nbsp;C</span>
+      <h2 class="v-name">Просто и крупно</h2>
+    </div>
+    <p class="v-desc">Максимальная простота и крупные элементы для сотрудников, которым важна лёгкость,
+      а не «умный» интерфейс: производство, стройка, ритейл, кухни. Большие кнопки, тёплый дружелюбный
+      акцент, минимум текста, всё считывается с одного взгляда.</p>
+    <div class="v-traits">
+      <span class="chip">Крупные касания</span><span class="chip">Стройка / ритейл / цех</span>
+      <span class="chip">Дружелюбно и понятно</span><span class="chip">Акцент — тёплый оранжевый</span>
+    </div>
+    <div class="v-body">
+      <div class="screens">
+        <div>
+          <div class="phone"><div class="glass"><div class="notch"></div>
+            <div class="c-scr" style="flex:1; display:flex; flex-direction:column;">
+              <div class="status-bar"><span>9:41</span><span>▮▮▮ 5G</span></div>
+              <div class="c-pad">
+                <div class="c-hi"><small>Смена сегодня</small><strong>Привет, Азиз!</strong></div>
+                <div class="c-state"><span class="big">✅</span>Вы на работе</div>
+                <div class="c-timecard"><div class="t">04:12</div><div class="l">отработано с 09:03</div></div>
+                <div class="c-btn">УХОД</div>
+                <div class="c-hint">Нажмите и покажите лицо в камеру</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="screen-label">Главная · статус смены</div>
+        </div>
+        <div>
+          <div class="phone"><div class="glass"><div class="notch"></div>
+            <div class="c-scr" style="flex:1; display:flex; flex-direction:column;">
+              <div class="status-bar"><span>9:41</span><span>▮▮▮ 5G</span></div>
+              <div class="c-scan">
+                <div class="c-oval"></div>
+                <h3>Посмотрите в камеру</h3>
+                <div class="c-prompt">Улыбнитесь 😊</div>
+                <div class="c-cancel">Назад</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="screen-label">Сканирование лица</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Во всех вариантах заложена одна логика защиты от «отметок за друга»: <b>проверка живости</b>
+      (случайное задание от сервера), <b>сравнение лица на сервере</b>, <b>геозона</b> и
+      <b>серверное время</b>. Подробнее — в <b>docs/ТЗ.md</b>, раздел 6.</p>
+  </footer>
+</div>
