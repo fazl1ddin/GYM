@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../api/api_client.dart';
 import '../../api/models.dart';
+import '../../services/offline_queue.dart';
 import '../../state/session.dart';
 import '../../theme.dart';
 import '../../utils.dart';
@@ -27,13 +28,18 @@ class _EmployeeHomeState extends State<EmployeeHome> {
     _load();
   }
 
+  int _offlinePending = 0;
+
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
+      await OfflineQueue.flush(); // досылаем офлайн-отметки, если появилась связь
       final (st, recs) = await ApiClient.instance.myAttendance();
-      setState(() { _status = st; _records = recs; });
+      final pending = await OfflineQueue.count();
+      setState(() { _status = st; _records = recs; _offlinePending = pending; });
     } catch (e) {
       setState(() => _error = e.toString());
+      _offlinePending = await OfflineQueue.count();
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -101,6 +107,19 @@ class _EmployeeHomeState extends State<EmployeeHome> {
             ),
             const SizedBox(height: 18),
             if (!user.enrolled) _enrollBanner(),
+            if (_offlinePending > 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: SoftCard(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(children: [
+                    const Icon(Icons.cloud_off, color: AppColors.warning, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text('Офлайн-отметок в очереди: $_offlinePending. Отправим при связи.',
+                        style: const TextStyle(fontSize: 13, color: AppColors.inkSoft))),
+                  ]),
+                ),
+              ),
             _statusCard(onShift),
             const SizedBox(height: 16),
             ElevatedButton.icon(

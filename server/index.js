@@ -16,6 +16,8 @@ import {
   isLocked, lockRemainingSec, registerFail, registerSuccess,
   makeRateLimiter, securityHeaders,
 } from './ratelimit.js';
+import { computeTimesheet, timesheetToCsv, parseHm } from './timesheet.js';
+import { whoNeedsReminder, reminderText, sendPush } from './push.js';
 
 const app = express();
 app.set('trust proxy', true);
@@ -329,6 +331,61 @@ app.get('/api/attendance/me', requireAuth, (req, res) => {
   });
 });
 
+// ================= PUSH-ТОКЕН (№7) =================
+app.post('/api/push/token', requireAuth, (req, res) => {
+  const { token } = req.body || {};
+  if (!token) return res.status(400).json({ error: 'Нет токена' });
+  db.prepare('UPDATE employees SET push_token = ? WHERE id = ?').run(String(token), req.user.id);
+  res.json({ ok: true });
+});
+
+// ================= ОФЛАЙН-ОТМЕТКА (№8) =================
+// Когда сети не было: клиент снял лицо/кадры/гео офлайн и досылает при связи.
+// Серверу нельзя доверять времени устройства и нет свежего челленджа, поэтому
+// офлайн-отметка всегда идёт в очередь на проверку (pending) с пометкой.
+app.post('/api/checkin/offline', requireAuth, async (req, res) => {
+  const { type, photo, livenessFrames, livenessChallenge, geo, deviceId, capturedAt, clientFlags } = req.body || {};
+  const now = Date.now();
+  const kind = type === 'out' ? 'out' : 'in';
+  if (!req.user.enrolled) return res.status(400).json({ error: 'Сначала зарегистрируйте лицо' });
+  if (!POLICY.serverSideEmbedding) return res.status(400).json({ error: 'Офлайн-режим требует серверного распознавания' });
+  if (!faceReady()) return res.status(503).json({ error: 'Модели ещё загружаются, повторите' });
+  if (!photo) return res.status(400).json({ error: 'Нужно фото лица' });
+
+  const emb = await embedFromDataUrl(photo);
+  if (!emb) return res.status(400).json({ error: 'Лицо на фото не найдено' });
+  const templates = db.prepare('SELECT descriptor FROM face_templates WHERE employee_id = ?')
+    .all(req.user.id).map((r) => JSON.parse(r.descriptor));
+  const distance = bestDistance(emb.descriptor, templates);
+  const matched = distance <= POLICY.faceMatchMaxDistance;
+
+  let livenessScore = 0;
+  if (POLICY.serverSideLiveness && livenessChallenge) {
+    const v = await verifyLiveness(livenessChallenge, livenessFrames);
+    livenessScore = v.score;
+  }
+
+  const wp = req.user.workplace_id
+    ? db.prepare('SELECT * FROM workplaces WHERE id = ?').get(req.user.workplace_id) : null;
+  const geoCheck = geo ? checkGeozone(wp, geo.lat, geo.lng) : { inside: false, distance: null, reason: 'no_location' };
+
+  const flags = ['офлайн-отметка (время со слов устройства)'];
+  if (!matched) flags.push('лицо не совпало');
+  if (!geoCheck.inside) flags.push('вне геозоны');
+  const risk = Math.min(100, 30 + (!matched ? 50 : 0) + (!geoCheck.inside ? 20 : 0));
+
+  const info = db.prepare(`INSERT INTO attendance
+    (employee_id,type,server_time,client_captured_at,offline,geo_lat,geo_lng,geo_accuracy,distance_m,
+     workplace_id,match_distance,liveness_score,liveness_challenge,risk_score,risk_flags,status,photo_ref,device_id)
+    VALUES (?,?,?,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+    req.user.id, kind, now, Number(capturedAt) || now, geo?.lat ?? null, geo?.lng ?? null, geo?.accuracy ?? null,
+    geoCheck.distance ?? null, wp?.id ?? null, Number(distance.toFixed(3)), livenessScore,
+    livenessChallenge || null, risk, JSON.stringify(flags), 'pending', savePhoto(photo), deviceId || null);
+
+  res.json({ id: info.lastInsertRowid, status: 'pending', offline: true,
+    message: 'Офлайн-отметка принята и отправлена на проверку руководителю' });
+});
+
 // ================= ADMIN =================
 app.get('/api/admin/employees', requireAuth, requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT * FROM employees ORDER BY role DESC, name').all();
@@ -463,9 +520,64 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
   });
 });
 
+// ================= ТАБЕЛЬ (№6) =================
+app.get('/api/admin/timesheet', requireAuth, requireAdmin, (req, res) => {
+  const from = req.query.from ? Date.parse(req.query.from) : Date.now() - 30 * 864e5;
+  const to = (req.query.to ? Date.parse(req.query.to) : Date.now()) + 864e5 - 1; // включая весь день «по»
+  const rows = db.prepare(`SELECT a.employee_id, a.type, a.server_time, e.name, w.work_start, w.norm_hours
+    FROM attendance a JOIN employees e ON e.id = a.employee_id
+    LEFT JOIN workplaces w ON w.id = a.workplace_id
+    WHERE a.status = 'confirmed' AND a.server_time BETWEEN ? AND ?
+    ORDER BY a.server_time`).all(from, to);
+  const events = rows.map((r) => ({
+    employeeId: r.employee_id, name: r.name, type: r.type, time: r.server_time,
+    workStartMin: parseHm(r.work_start || '09:00'), normMin: Math.round((r.norm_hours || 8) * 60),
+  }));
+  const ts = computeTimesheet(events);
+  if (req.query.format === 'csv') {
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="timesheet.csv"');
+    return res.send(timesheetToCsv(ts));
+  }
+  res.json({ rows: ts });
+});
+
+// ================= ПЛАНИРОВЩИК НАПОМИНАНИЙ (№7) =================
+// Включается FACECLOCK_REMINDERS=on. Проверяет раз в 5 минут, кому напомнить.
+const remindedToday = new Set(); // ключ 'YYYY-MM-DD|empId|kind' — не спамим
+function reminderTick() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const dayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
+  const emps = db.prepare(`SELECT e.*, w.work_start, w.norm_hours FROM employees e
+    LEFT JOIN workplaces w ON w.id = e.workplace_id
+    WHERE e.active = 1 AND e.role = 'employee' AND e.push_token IS NOT NULL`).all();
+  const list = emps.map((e) => {
+    const last = db.prepare(`SELECT type FROM attendance WHERE employee_id = ? AND server_time >= ?
+      AND status IN ('confirmed','pending') ORDER BY server_time DESC LIMIT 1`).get(e.id, startOfDay.getTime());
+    const todayIn = db.prepare(`SELECT 1 FROM attendance WHERE employee_id = ? AND type='in' AND server_time >= ?
+      AND status IN ('confirmed','pending') LIMIT 1`).get(e.id, startOfDay.getTime());
+    return { id: e.id, token: e.push_token, workStartMin: parseHm(e.work_start || '09:00'),
+      normMin: Math.round((e.norm_hours || 8) * 60), todayIn: !!todayIn, onShift: last?.type === 'in' };
+  });
+  for (const need of whoNeedsReminder(list, nowMin)) {
+    const k = `${dayKey}|${need.id}|${need.kind}`;
+    if (remindedToday.has(k)) continue;
+    remindedToday.add(k);
+    const emp = list.find((x) => x.id === need.id);
+    sendPush(emp.token, reminderText(need.kind));
+  }
+}
+
 app.get('/', (req, res) => res.json({ app: 'FaceClock API', status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
 // Прогреваем модели распознавания заранее (если включён серверный эмбеддинг).
 if (POLICY.serverSideEmbedding) initFaceEmbed();
+// Планировщик push-напоминаний (по флагу, чтобы не слать в тестах/деве).
+if (process.env.FACECLOCK_REMINDERS === 'on') {
+  setInterval(reminderTick, 5 * 60_000);
+  console.log('Напоминания включены (интервал 5 мин)');
+}
 app.listen(PORT, () => console.log(`FaceClock API на http://localhost:${PORT}`));

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -8,6 +9,7 @@ import '../../api/models.dart';
 import '../../services/device_service.dart';
 import '../../services/face_service.dart';
 import '../../services/location_service.dart';
+import '../../services/offline_queue.dart';
 import '../../theme.dart';
 import '../../utils.dart';
 import '../../widgets/face_scan.dart';
@@ -33,6 +35,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
   String? _geoError;
   final List<String> _frames = []; // кадры для серверной проверки живости
   String? _qr;
+  bool _offline = false; // сети нет — отметка уйдёт в офлайн-очередь
   String _prompt = 'Подготовка…';
   bool _capturing = false;
   bool _done = false;
@@ -64,9 +67,22 @@ class _CheckinScreenState extends State<CheckinScreen> {
         _tracker = LivenessTracker(ch.challenge);
         _prompt = challengeLabel(ch.challenge);
       });
-    } catch (e) {
-      _snack(e.toString());
-      if (mounted) Navigator.pop(context, false);
+    } on ApiException catch (e) {
+      // нет связи → офлайн-режим: локальное действие, отметка уйдёт в очередь
+      if (e.status == null) {
+        final actions = ['blink', 'turn_left', 'turn_right', 'smile'];
+        final local = actions[Random().nextInt(actions.length)];
+        if (!mounted) return;
+        setState(() {
+          _offline = true;
+          _challenge = CheckinChallenge(nonce: '', challenge: local, type: widget.type, serverTime: 0, expiresAt: 0);
+          _tracker = LivenessTracker(local);
+          _prompt = challengeLabel(local);
+        });
+      } else {
+        _snack(e.toString());
+        if (mounted) Navigator.pop(context, false);
+      }
     }
   }
 
@@ -112,6 +128,31 @@ class _CheckinScreenState extends State<CheckinScreen> {
         try { embedding = await FaceService.embedFromFile(shot.path, faces.first); } catch (_) {}
       }
       final photo = base64Encode(await File(shot.path).readAsBytes());
+
+      // Офлайн: сохраняем в очередь и досылаем при связи (№8)
+      if (_offline) {
+        await OfflineQueue.enqueue({
+          'type': widget.type,
+          'photo': 'data:image/jpeg;base64,$photo',
+          'livenessFrames': _frames,
+          'livenessChallenge': _tracker!.challenge,
+          'geo': _geo?.toJson(),
+          'deviceId': DeviceService.deviceId,
+          'capturedAt': DateTime.now().millisecondsSinceEpoch,
+        });
+        _done = true;
+        if (mounted) {
+          await showDialog(context: context, builder: (_) => AlertDialog(
+            icon: const Icon(Icons.cloud_off, color: AppColors.warning, size: 44),
+            title: const Text('Сохранено офлайн', textAlign: TextAlign.center),
+            content: const Text('Нет связи. Отметка отправится автоматически, когда появится интернет.',
+                textAlign: TextAlign.center),
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('ОК'))],
+          ));
+          Navigator.pop(context, true);
+        }
+        return;
+      }
 
       final result = await ApiClient.instance.checkin(
         type: widget.type,

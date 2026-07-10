@@ -183,6 +183,31 @@ class ApiClient {
   Future<Map<String, dynamic>> stats() async =>
       Map<String, dynamic>.from(await _request('GET', '/api/admin/stats'));
 
+  // ---- табель (№6) ----
+  Future<List<Map<String, dynamic>>> timesheet({String? from, String? to}) async {
+    final q = <String>[];
+    if (from != null) q.add('from=$from');
+    if (to != null) q.add('to=$to');
+    final d = await _request('GET', '/api/admin/timesheet${q.isNotEmpty ? '?${q.join('&')}' : ''}');
+    return (d['rows'] as List).map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  /// CSV табеля как строка (для экспорта/шеринга).
+  Future<String> timesheetCsv({String? from, String? to}) async {
+    final q = ['format=csv', if (from != null) 'from=$from', if (to != null) 'to=$to'];
+    final res = await http.get(Uri.parse('$baseUrl/api/admin/timesheet?${q.join('&')}'), headers: _headers);
+    if (res.statusCode >= 400) throw ApiException('Ошибка экспорта (${res.statusCode})');
+    return res.body;
+  }
+
+  // ---- push-токен (№7) ----
+  Future<void> registerPushToken(String token) =>
+      _request('POST', '/api/push/token', {'token': token});
+
+  // ---- офлайн-отметка (№8) ----
+  Future<Map<String, dynamic>> checkinOffline(Map<String, dynamic> body) async =>
+      Map<String, dynamic>.from(await _request('POST', '/api/checkin/offline', body));
+
   String photoUrl(String ref) => '$baseUrl/api/admin/photo/$ref';
 
   /// Заголовки для загрузки защищённых изображений (Image.network).

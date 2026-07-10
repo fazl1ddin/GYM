@@ -90,4 +90,9 @@ function addColumn(table, def) {
 }
 addColumn('workplaces', 'qr_secret TEXT');    // секрет для динамического QR (улучшение №3)
 addColumn('workplaces', 'require_qr INTEGER NOT NULL DEFAULT 0'); // требовать QR на этом месте
+addColumn('workplaces', "work_start TEXT NOT NULL DEFAULT '09:00'"); // начало смены (для опозданий)
+addColumn('workplaces', 'norm_hours REAL NOT NULL DEFAULT 8');       // норма часов в день
 addColumn('attendance', 'qr_ok INTEGER');     // прошёл ли QR-код при отметке
+addColumn('attendance', 'client_captured_at INTEGER'); // время съёмки на устройстве (офлайн, №8)
+addColumn('attendance', 'offline INTEGER NOT NULL DEFAULT 0'); // офлайн-отметка (досыл, №8)
+addColumn('employees', 'push_token TEXT');    // токен для push-напоминаний (№7)

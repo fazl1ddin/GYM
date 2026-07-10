@@ -136,6 +136,13 @@ try {
   r = await call('/api/enroll', { method: 'POST', body: { photo: dataUrl('sample1.jpg'), deviceId: 'dev-2' } });
   ok('чужое уже зарегистрированное лицо → 409 (дубль)', r.status === 409, r.data?.error || '');
 
+  // ---------- офлайн-отметка (улучшение №8) ----------
+  await call('/api/login', { method: 'POST', body: { login: 'aziz', password: 'aziz123' } });
+  r = await call('/api/checkin/offline', { method: 'POST', body: {
+    type: 'in', photo: dataUrl('sample1.jpg'), geo: office, deviceId: 'dev-1',
+    capturedAt: Date.now() - 3600_000 } });
+  ok('офлайн-отметка → принята в очередь (pending, offline)', r.status === 200 && r.data.status === 'pending' && r.data.offline === true);
+
   console.log(`\n${failed === 0 ? '✅' : '❌'} Пройдено ${passed}, провалено ${failed}`);
 } finally {
   server.kill('SIGKILL');

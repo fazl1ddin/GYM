@@ -6,6 +6,7 @@ import '../../theme.dart';
 import 'employees_screen.dart';
 import 'anomalies_screen.dart';
 import 'workplaces_screen.dart';
+import 'timesheet_screen.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -22,6 +23,7 @@ class _AdminHomeState extends State<AdminHome> {
       _OverviewTab(),
       EmployeesScreen(),
       AnomaliesScreen(),
+      TimesheetScreen(),
       WorkplacesScreen(),
     ];
     return Scaffold(
@@ -42,6 +44,7 @@ class _AdminHomeState extends State<AdminHome> {
           NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Обзор'),
           NavigationDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: 'Сотрудники'),
           NavigationDestination(icon: Icon(Icons.warning_amber_outlined), selectedIcon: Icon(Icons.warning), label: 'Аномалии'),
+          NavigationDestination(icon: Icon(Icons.table_chart_outlined), selectedIcon: Icon(Icons.table_chart), label: 'Табель'),
           NavigationDestination(icon: Icon(Icons.place_outlined), selectedIcon: Icon(Icons.place), label: 'Места'),
         ],
       ),

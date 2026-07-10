@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { currentCode, validateCode, parsePayload, qrPayload, newSecret } from './qr.js';
+import { computeTimesheet, timesheetToCsv } from './timesheet.js';
+import { whoNeedsReminder } from './push.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -143,6 +145,42 @@ try {
     lastStatus = rr.status;
   }
   ok('перебор пароля → блокировка (429)', lastStatus === 429);
+
+  // ---- табель: опоздания/переработки (модуль, улучшение №6) ----
+  const day = new Date(2026, 0, 15, 0, 0, 0).getTime();
+  const at = (h, m) => day + (h * 60 + m) * 60000;
+  const tsRows = computeTimesheet([
+    { employeeId: 1, name: 'Иван', type: 'in', time: at(9, 20), workStartMin: 540, normMin: 480 },
+    { employeeId: 1, name: 'Иван', type: 'out', time: at(19, 0), workStartMin: 540, normMin: 480 },
+  ]);
+  ok('табель: опоздание 20 мин', tsRows[0].lateMin === 20, `late=${tsRows[0].lateMin}`);
+  ok('табель: отработано ~9.67 ч', Math.abs(tsRows[0].workedHours - 9.67) < 0.05, `h=${tsRows[0].workedHours}`);
+  ok('табель: переработка ~1.67 ч', Math.abs(tsRows[0].overtimeHours - 1.67) < 0.05, `ot=${tsRows[0].overtimeHours}`);
+  ok('табель: CSV с заголовком и BOM', timesheetToCsv(tsRows).includes('Опоздание') && timesheetToCsv(tsRows).charCodeAt(0) === 0xFEFF);
+
+  // ---- напоминания (модуль, улучшение №7) ----
+  // утро (10:00): кто не пришёл — напомнить о приходе
+  const morning = whoNeedsReminder([
+    { id: 1, workStartMin: 540, normMin: 480, todayIn: false, onShift: false },
+    { id: 3, workStartMin: 540, normMin: 480, todayIn: true, onShift: true },
+  ], 10 * 60);
+  ok('напоминание о приходе (не пришёл)', morning.some((x) => x.id === 1 && x.kind === 'checkin'));
+  ok('без напоминания если пришёл', !morning.some((x) => x.id === 3 && x.kind === 'checkin'));
+  // вечер (18:00): кто на смене после конца — напомнить об уходе
+  const evening = whoNeedsReminder([
+    { id: 2, workStartMin: 540, normMin: 480, todayIn: true, onShift: true },
+    { id: 3, workStartMin: 540, normMin: 480, todayIn: true, onShift: false },
+  ], 18 * 60);
+  ok('напоминание об уходе (забыл)', evening.some((x) => x.id === 2 && x.kind === 'checkout'));
+  ok('без напоминания если ушёл', !evening.some((x) => x.id === 3));
+
+  // ---- API: push-токен и табель ----
+  await call('/api/login', { method: 'POST', body: { login: 'aziz', password: 'aziz123' } });
+  r = await call('/api/push/token', { method: 'POST', body: { token: 'fcm-demo-token-123' } });
+  ok('регистрация push-токена', r.status === 200);
+  await call('/api/login', { method: 'POST', body: { login: 'admin', password: 'admin123' } });
+  r = await call('/api/admin/timesheet');
+  ok('табель (JSON) доступен админу', r.status === 200 && Array.isArray(r.data.rows));
 
   console.log(`\n${failed === 0 ? '✅' : '❌'} Пройдено ${passed}, провалено ${failed}`);
 } finally {
