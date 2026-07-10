@@ -20,10 +20,25 @@ app/                           мобильное приложение (Flutter)
 npm install
 npm run seed       # создаёт админа, сотрудника и рабочие места
 npm start          # http://localhost:3000
-npm test           # логика API: 32 проверки (роли, QR, блокировка, табель, напоминания)
-npm run test:face  # распознавание/дубли/живость/офлайн на реальных фото: 14 проверок
+
+npm run test:unit  # чистые функции (geo/risk/face/timesheet/qr/liveness/validate): 28
+npm test           # логика API (роли, QR, блокировка, табель, напоминания): 32
+npm run test:face  # распознавание/дубли/живость/офлайн на реальных фото: 14
+npm run test:all   # всё сразу (74 проверки)
 ```
 Тестовые входы: `admin / admin123` (админ), `aziz / aziz123` (сотрудник).
+
+### Эксплуатация (надёжность)
+- **Docker:** `docker compose up --build` — поднимает backend с томами для БД и
+  бэкапов (`Dockerfile`, `docker-compose.yml`).
+- **Бэкапы:** `npm run backup` — целостный снапшот БД в `backups/` с хранением
+  последних 14 (настраивается `FACECLOCK_BACKUP_KEEP`). По расписанию — cron или
+  `docker compose run --rm backup`.
+- **CI:** `.github/workflows/ci.yml` — все backend-тесты на каждый push/PR
+  (+ `flutter analyze` отдельным job).
+- **PostgreSQL:** план миграции — `docs/postgres-migration.md` (для SQLite при
+  ~100 сотрудниках запас большой).
+- **Валидация:** входные данные ключевых эндпоинтов проверяются (`server/validate.js`).
 
 **Распознавание лица считает сервер** (`server/faceEmbed.js`, TensorFlow +
 face-api): backend сам вычисляет эмбеддинг из загруженного фото и сравнивает с

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  backend:
+    name: Backend (tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - name: Install
+        run: npm ci
+      - name: Unit tests (чистые функции)
+        run: npm run test:unit
+      - name: Logic tests (API)
+        run: npm test
+      - name: Face recognition tests (реальные фото)
+        run: npm run test:face
+
+  flutter-analyze:
+    name: Flutter (analyze)
+    runs-on: ubuntu-latest
+    # не блокирует пайплайн: мобильный клиент собирается отдельно
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Pub get
+        working-directory: app
+        run: flutter pub get
+      - name: Analyze
+        working-directory: app
+        run: flutter analyze

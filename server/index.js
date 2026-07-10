@@ -18,6 +18,7 @@ import {
 } from './ratelimit.js';
 import { computeTimesheet, timesheetToCsv, parseHm } from './timesheet.js';
 import { whoNeedsReminder, reminderText, sendPush } from './push.js';
+import { validate } from './validate.js';
 
 const app = express();
 app.set('trust proxy', true);
@@ -81,7 +82,10 @@ function publicEmployee(e) {
 
 // ================= AUTH =================
 const loginLimiter = makeRateLimiter({ windowMs: 60_000, max: 20 });
-app.post('/api/login', loginLimiter, (req, res) => {
+app.post('/api/login', loginLimiter, validate({
+  login: { type: 'string', required: true, max: 64 },
+  password: { type: 'string', required: true, max: 200 },
+}), (req, res) => {
   const { login, password } = req.body || {};
   const ip = req.ip || 'unknown';
   const name = String(login || '').trim();
@@ -392,9 +396,13 @@ app.get('/api/admin/employees', requireAuth, requireAdmin, (req, res) => {
   res.json({ employees: rows.map(publicEmployee) });
 });
 
-app.post('/api/admin/employees', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/employees', requireAuth, requireAdmin, validate({
+  name: { type: 'string', required: true, min: 2, max: 100 },
+  login: { type: 'string', required: true, min: 2, max: 64 },
+  password: { type: 'string', required: true, min: 6, max: 200 },
+  role: { type: 'string', enum: ['admin', 'employee'] },
+}), (req, res) => {
   const { name, login, password, role, workplaceId } = req.body || {};
-  if (!name || !login || !password) return res.status(400).json({ error: 'Заполните имя, логин и пароль' });
   const exists = db.prepare('SELECT 1 FROM employees WHERE login = ?').get(String(login).trim());
   if (exists) return res.status(409).json({ error: 'Логин уже занят' });
   const info = db.prepare(`INSERT INTO employees (name,login,pass_hash,role,workplace_id)
@@ -436,9 +444,11 @@ app.get('/api/admin/workplaces', requireAuth, requireAdmin, (req, res) => {
     id: w.id, name: w.name, address: w.address, lat: w.lat, lng: w.lng,
     radiusM: w.radius_m, requireQr: !!w.require_qr, hasQr: !!w.qr_secret })) });
 });
-app.post('/api/admin/workplaces', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/workplaces', requireAuth, requireAdmin, validate({
+  name: { type: 'string', required: true, min: 1, max: 120 },
+  radiusM: { type: 'number', min: 10, max: 5000 },
+}), (req, res) => {
   const { name, address, lat, lng, radiusM, requireQr } = req.body || {};
-  if (!name) return res.status(400).json({ error: 'Укажите название' });
   const info = db.prepare('INSERT INTO workplaces (name,address,lat,lng,radius_m,qr_secret,require_qr) VALUES (?,?,?,?,?,?,?)')
     .run(String(name).trim(), address || null, lat ?? null, lng ?? null, radiusM || 150, newSecret(), requireQr ? 1 : 0);
   res.json({ id: info.lastInsertRowid });

@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      FACECLOCK_SERVER_EMBED: "on"      # распознавание лица на сервере
+      FACECLOCK_SERVER_LIVENESS: "on"   # проверка живости на сервере
+      # FACECLOCK_REMINDERS: "on"       # включить push-напоминания
+      # FCM_SERVER_KEY: "<ключ FCM>"    # для отправки push
+    volumes:
+      - faceclock-data:/app/data        # БД и фото сохраняются между перезапусками
+      - ./backups:/app/backups          # сюда пишутся резервные копии
+    restart: unless-stopped
+
+  # Резервное копирование по расписанию (запускать вручную или из cron хоста):
+  #   docker compose run --rm backup
+  backup:
+    build: .
+    profiles: ["tools"]
+    command: ["npm", "run", "backup"]
+    volumes:
+      - faceclock-data:/app/data
+      - ./backups:/app/backups
+
+volumes:
+  faceclock-data:
