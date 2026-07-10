@@ -10,9 +10,12 @@
   "scripts": {
     "start": "node --experimental-sqlite server/index.js",
     "seed": "node --experimental-sqlite server/seed.js",
-    "test": "node --experimental-sqlite server/test.mjs"
+    "test": "node --experimental-sqlite server/test.mjs",
+    "test:face": "node --experimental-sqlite server/faceEmbed.test.mjs"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "@vladmandic/face-api": "^1.7.15",
     "express": "^4.22.2"
   }
 }

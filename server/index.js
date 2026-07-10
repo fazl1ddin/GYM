@@ -6,9 +6,10 @@ import { db, PHOTOS_DIR } from './db.js';
 import {
   POLICY, hashPassword, verifyPassword, signSession, verifySession, randomNonce,
 } from './security.js';
-import { isValidEmbedding, bestSimilarity } from './face.js';
+import { isValidEmbedding, bestSimilarity, bestDistance } from './face.js';
 import { checkGeozone } from './geo.js';
 import { scoreRisk } from './risk.js';
+import { initFaceEmbed, isReady as faceReady, embedFromDataUrl } from './faceEmbed.js';
 
 const app = express();
 app.use(express.json({ limit: '12mb' }));
@@ -96,17 +97,32 @@ app.get('/api/config', (req, res) => {
     requireGeo: POLICY.requireGeo,
     requireLiveness: POLICY.requireLiveness,
     challenges: POLICY.challenges,
+    serverSideEmbedding: POLICY.serverSideEmbedding,
+    faceReady: POLICY.serverSideEmbedding ? faceReady() : true,
     serverTime: Date.now(),
   });
 });
 
 // ================= ENROLLMENT =================
-app.post('/api/enroll', requireAuth, (req, res) => {
+app.post('/api/enroll', requireAuth, async (req, res) => {
   const { embedding, photo, deviceId } = req.body || {};
-  if (!isValidEmbedding(embedding)) return res.status(400).json({ error: 'Некорректный эмбеддинг лица' });
+
+  // Дескриптор лица считает сервер из фото (не доверяем клиенту).
+  let descriptor = null;
+  if (POLICY.serverSideEmbedding) {
+    if (!faceReady()) return res.status(503).json({ error: 'Модели распознавания ещё загружаются, повторите' });
+    if (!photo) return res.status(400).json({ error: 'Нужно фото лица' });
+    const r = await embedFromDataUrl(photo);
+    if (!r) return res.status(400).json({ error: 'Лицо на фото не найдено, повторите' });
+    descriptor = r.descriptor;
+  } else {
+    if (!isValidEmbedding(embedding)) return res.status(400).json({ error: 'Некорректный эмбеддинг лица' });
+    descriptor = embedding;
+  }
+
   const photoRef = savePhoto(photo);
   db.prepare('INSERT INTO face_templates (employee_id, descriptor, photo_ref) VALUES (?,?,?)')
-    .run(req.user.id, JSON.stringify(embedding), photoRef);
+    .run(req.user.id, JSON.stringify(descriptor), photoRef);
   // привязка устройства при регистрации лица
   if (POLICY.bindDevice && deviceId && !req.user.device_id) {
     db.prepare('UPDATE employees SET device_id = ? WHERE id = ?').run(String(deviceId), req.user.id);
@@ -134,12 +150,17 @@ app.post('/api/checkin/challenge', requireAuth, (req, res) => {
   });
 });
 
-app.post('/api/checkin', requireAuth, (req, res) => {
+app.post('/api/checkin', requireAuth, async (req, res) => {
   const { type, nonce, embedding, photo, liveness, geo, deviceId, clientFlags } = req.body || {};
   const now = Date.now();
 
   if (!req.user.enrolled) return res.status(400).json({ error: 'Сначала зарегистрируйте лицо' });
-  if (!isValidEmbedding(embedding)) return res.status(400).json({ error: 'Некорректный эмбеддинг лица' });
+  if (POLICY.serverSideEmbedding) {
+    if (!faceReady()) return res.status(503).json({ error: 'Модели распознавания ещё загружаются, повторите' });
+    if (!photo) return res.status(400).json({ error: 'Нужно фото лица' });
+  } else if (!isValidEmbedding(embedding)) {
+    return res.status(400).json({ error: 'Некорректный эмбеддинг лица' });
+  }
 
   // --- 1. Одноразовый nonce + анти-replay + серверное время (уровень 1) ---
   const ch = db.prepare('SELECT * FROM challenges WHERE nonce = ? AND employee_id = ?').get(nonce, req.user.id);
@@ -165,8 +186,22 @@ app.post('/api/checkin', requireAuth, (req, res) => {
   // --- 3. Сравнение лица на сервере (уровень 1/2) ---
   const templates = db.prepare('SELECT descriptor FROM face_templates WHERE employee_id = ?')
     .all(req.user.id).map((r) => JSON.parse(r.descriptor));
-  const similarity = bestSimilarity(embedding, templates);
-  const matched = similarity >= POLICY.faceMatchMinSimilarity;
+
+  let matched, faceWeak, faceMetric;
+  if (POLICY.serverSideEmbedding) {
+    // сервер сам считает вектор из фото — вектор клиента игнорируется
+    const emb = await embedFromDataUrl(photo);
+    if (!emb) return res.status(400).json({ error: 'Лицо на фото не найдено, повторите' });
+    const distance = bestDistance(emb.descriptor, templates);
+    matched = distance <= POLICY.faceMatchMaxDistance;
+    faceWeak = matched && distance > POLICY.faceMatchMaxDistance - 0.08;
+    faceMetric = Number(distance.toFixed(3));
+  } else {
+    const similarity = bestSimilarity(embedding, templates);
+    matched = similarity >= POLICY.faceMatchMinSimilarity;
+    faceWeak = matched && similarity < POLICY.faceMatchMinSimilarity + 0.08;
+    faceMetric = Number(similarity.toFixed(3));
+  }
 
   // --- 4. Привязка устройства (уровень 2) ---
   let deviceMismatch = false, deviceNew = false;
@@ -186,7 +221,7 @@ app.post('/api/checkin', requireAuth, (req, res) => {
   // --- 6. Риск-скоринг (уровень 4) ---
   const risk = scoreRisk({
     geo: geoCheck, accuracy: geo?.accuracy, workplace: wp,
-    similarity, minSimilarity: POLICY.faceMatchMinSimilarity,
+    faceMatched: matched, faceWeak,
     liveness: livenessScore, minLiveness: POLICY.livenessMinScore,
     deviceMismatch, deviceNew, clientFlags,
   });
@@ -203,13 +238,13 @@ app.post('/api/checkin', requireAuth, (req, res) => {
      match_distance,liveness_score,liveness_challenge,risk_score,risk_flags,status,photo_ref,device_id)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
     req.user.id, ch.kind, now, geo?.lat ?? null, geo?.lng ?? null, geo?.accuracy ?? null,
-    geoCheck.distance ?? null, wp?.id ?? null, similarity, livenessScore, ch.challenge,
+    geoCheck.distance ?? null, wp?.id ?? null, faceMetric, livenessScore, ch.challenge,
     risk.score, JSON.stringify(risk.flags), status, photoRef, deviceId || null);
 
   res.json({
     id: info.lastInsertRowid,
     type: ch.kind, status, serverTime: now,
-    similarity: Number(similarity.toFixed(3)), matched,
+    similarity: faceMetric, matched,
     liveness: livenessScore, inGeozone: geoCheck.inside,
     distanceM: geoCheck.distance != null ? Math.round(geoCheck.distance) : null,
     riskScore: risk.score, riskFlags: risk.flags,
@@ -366,4 +401,6 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
 app.get('/', (req, res) => res.json({ app: 'FaceClock API', status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
+// Прогреваем модели распознавания заранее (если включён серверный эмбеддинг).
+if (POLICY.serverSideEmbedding) initFaceEmbed();
 app.listen(PORT, () => console.log(`FaceClock API на http://localhost:${PORT}`));

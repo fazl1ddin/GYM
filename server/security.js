@@ -15,7 +15,11 @@ if (existsSync(secretPath)) {
 
 // --- Политика защиты (раздел 6 ТЗ, уровень «максимум») ---
 export const POLICY = {
-  faceMatchMinSimilarity: 0.6, // косинусное сходство эмбеддингов: больше — совпадение
+  // Серверный эмбеддинг: сервер сам считает вектор лица из фото (не доверяет
+  // вектору от клиента). Отключается через FACECLOCK_SERVER_EMBED=off.
+  serverSideEmbedding: process.env.FACECLOCK_SERVER_EMBED !== 'off',
+  faceMatchMaxDistance: 0.55,  // евклидово расстояние дескрипторов: меньше — совпадение
+  faceMatchMinSimilarity: 0.6, // косинусное сходство (запасной клиентский путь)
   livenessMinScore: 0.6,       // минимальный балл живости
   challengeTtlMs: 60_000,      // время жизни liveness-челленджа
   requireGeo: true,            // обязательна геозона

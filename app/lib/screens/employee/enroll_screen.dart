@@ -30,10 +30,6 @@ class _EnrollScreenState extends State<EnrollScreen> {
 
   Future<void> _capture() async {
     if (_controller == null || !_faceOk || _capturing) return;
-    if (!FaceService.modelReady) {
-      _snack('Модель распознавания не загружена (assets/models/mobilefacenet.tflite)');
-      return;
-    }
     setState(() { _capturing = true; _prompt = 'Обработка…'; });
     try {
       await _controller!.stopImageStream();
@@ -41,7 +37,12 @@ class _EnrollScreenState extends State<EnrollScreen> {
       final faces = await FaceService.detectFromInputImage(
           InputImage.fromFilePath(shot.path));
       if (faces.isEmpty) throw 'Лицо не найдено, попробуйте ещё раз';
-      final embedding = await FaceService.embedFromFile(shot.path, faces.first);
+      // Эмбеддинг считает сервер из фото; если на устройстве есть модель —
+      // добавим вектор дополнительно (не обязателен).
+      List<double>? embedding;
+      if (FaceService.modelReady) {
+        try { embedding = await FaceService.embedFromFile(shot.path, faces.first); } catch (_) {}
+      }
       final photo = base64Encode(await File(shot.path).readAsBytes());
       await ApiClient.instance.enroll(embedding, 'data:image/jpeg;base64,$photo',
           DeviceService.deviceId);

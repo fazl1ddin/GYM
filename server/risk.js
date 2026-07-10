@@ -17,11 +17,9 @@ export function scoreRisk(ctx) {
   // Низкая точность GPS — возможна подмена
   if (ctx.accuracy != null && ctx.accuracy > 100) { score += 10; flags.push('низкая точность GPS'); }
 
-  // Слабое совпадение лица
-  if (ctx.similarity != null) {
-    if (ctx.similarity < ctx.minSimilarity) { score += 50; flags.push('лицо не совпало'); }
-    else if (ctx.similarity < ctx.minSimilarity + 0.08) { score += 15; flags.push('слабое совпадение лица'); }
-  }
+  // Совпадение лица (matched — прошло порог, weak — у границы порога)
+  if (ctx.faceMatched === false) { score += 50; flags.push('лицо не совпало'); }
+  else if (ctx.faceWeak) { score += 15; flags.push('слабое совпадение лица'); }
 
   // Низкая живость
   if (ctx.liveness != null && ctx.liveness < ctx.minLiveness) {

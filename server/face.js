@@ -30,3 +30,21 @@ export function bestSimilarity(candidate, templates) {
   }
   return best;
 }
+
+// Евклидово расстояние — нативная метрика дескрипторов face-api.
+export function euclideanDistance(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return Infinity;
+  let s = 0;
+  for (let i = 0; i < a.length; i++) s += (a[i] - b[i]) ** 2;
+  return Math.sqrt(s);
+}
+
+// Минимальное расстояние до эталонов сотрудника (меньше — ближе совпадение).
+export function bestDistance(candidate, templates) {
+  let best = Infinity;
+  for (const t of templates) {
+    const d = euclideanDistance(candidate, t);
+    if (d < best) best = d;
+  }
+  return best;
+}

@@ -79,15 +79,16 @@ class _CheckinScreenState extends State<CheckinScreen> {
     _capturing = true;
     setState(() => _prompt = 'Готово! Снимаем…');
     try {
-      if (!FaceService.modelReady) {
-        throw 'Модель распознавания не загружена (assets/models/mobilefacenet.tflite)';
-      }
       await _controller!.stopImageStream();
       final shot = await _controller!.takePicture();
       final faces = await FaceService.detectFromInputImage(
           InputImage.fromFilePath(shot.path));
       if (faces.isEmpty) throw 'Лицо не найдено, повторите';
-      final embedding = await FaceService.embedFromFile(shot.path, faces.first);
+      // Распознаёт сервер по фото; вектор с устройства — опционально.
+      List<double>? embedding;
+      if (FaceService.modelReady) {
+        try { embedding = await FaceService.embedFromFile(shot.path, faces.first); } catch (_) {}
+      }
       final photo = base64Encode(await File(shot.path).readAsBytes());
 
       final result = await ApiClient.instance.checkin(

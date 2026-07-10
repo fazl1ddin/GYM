@@ -56,8 +56,9 @@ function ok(name, cond, extra = '') {
 // подготовка окружения
 await sh('npm', ['run', 'seed']);
 
+// логический тест использует клиентские векторы (без ML) — детерминирован и быстр
 const server = spawn('node', ['--experimental-sqlite', 'server/index.js'], {
-  cwd: ROOT, env: { ...process.env, PORT: String(PORT) }, stdio: 'ignore',
+  cwd: ROOT, env: { ...process.env, PORT: String(PORT), FACECLOCK_SERVER_EMBED: 'off' }, stdio: 'ignore',
 });
 try {
   await waitUp();

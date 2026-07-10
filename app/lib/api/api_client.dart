@@ -105,7 +105,7 @@ class ApiClient {
       Map<String, dynamic>.from(await _request('GET', '/api/config'));
 
   // ---- enrollment / check-in ----
-  Future<void> enroll(List<double> embedding, String? photoBase64, String deviceId) =>
+  Future<void> enroll(List<double>? embedding, String? photoBase64, String deviceId) =>
       _request('POST', '/api/enroll',
           {'embedding': embedding, 'photo': photoBase64, 'deviceId': deviceId});
 
@@ -115,7 +115,7 @@ class ApiClient {
   Future<CheckinResult> checkin({
     required String type,
     required String nonce,
-    required List<double> embedding,
+    List<double>? embedding,
     String? photoBase64,
     required Map<String, dynamic> liveness,
     Map<String, dynamic>? geo,
