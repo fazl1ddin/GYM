@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const ROOT = join(__dirname, '..');
-export const DATA_DIR = join(ROOT, 'data');
+// Папку данных можно переопределить (напр. для изолированных тестов).
+export const DATA_DIR = process.env.FACECLOCK_DATA_DIR || join(ROOT, 'data');
 export const PHOTOS_DIR = join(DATA_DIR, 'photos');
 
 mkdirSync(PHOTOS_DIR, { recursive: true });

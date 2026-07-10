@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node --experimental-sqlite server/index.js",
-    "seed": "node --experimental-sqlite server/seed.js"
+    "seed": "node --experimental-sqlite server/seed.js",
+    "test": "node --experimental-sqlite server/test.mjs"
   },
   "dependencies": {
     "express": "^4.22.2"
