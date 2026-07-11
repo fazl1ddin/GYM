@@ -10,8 +10,15 @@
 - Реальное устройство (нужны камера и GPS; на эмуляторе камера/гео ограничены).
 
 ## Первый запуск
+
+> ⚠️ **Все команды `flutter` выполняйте внутри `app/`** — здесь лежит проект
+> (`name: faceclock`). Если запустить `flutter` в корне репозитория `GYM/`,
+> Flutter возьмёт имя проекта из имени папки → ошибка
+> «`"GYM" is not a valid Dart package name`». В IDE открывайте папку **`app`**,
+> а не весь репозиторий.
+
 ```bash
-cd app
+cd app                      # ← обязательно, не из корня GYM
 flutter create .            # сгенерирует папки android/ ios/ (lib/ и pubspec не трогает)
 flutter pub get
 ```
@@ -19,6 +26,11 @@ flutter pub get
 ```bash
 flutter run
 ```
+
+> Если вы уже случайно запускали `flutter create .` в корне `GYM/` — удалите
+> появившиеся там лишние Flutter-файлы (`lib/`, `test/`, `android/`, `ios/`,
+> `.metadata`, корневой `pubspec.yaml`, `analysis_options.yaml`); проект должен
+> оставаться только в `app/`.
 
 ### 1. Разрешения
 
