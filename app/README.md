@@ -41,7 +41,24 @@ flutter run
 ```
 
 ### 2. Версии SDK
-`android/app/build.gradle` → `minSdkVersion 24` (нужно для ML Kit и tflite).
+**Android** — `android/app/build.gradle` → `minSdkVersion 24` (нужно для ML Kit и tflite).
+
+**iOS** — плагины ML Kit требуют минимум **iOS 15.5**. В `ios/Podfile`:
+```ruby
+platform :ios, '15.5'                 # раскомментировать и поставить 15.5
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
+    end
+  end
+end
+```
+Затем `cd ios && pod install` (при ошибке: `rm -rf Pods Podfile.lock && pod install`).
+В Xcode: Runner → General → Minimum Deployments → iOS 15.5.
+> Без этого сборка падает: `google_mlkit_commons requires a higher minimum iOS deployment version`.
 
 ### 3. Модель распознавания — не нужна
 Распознавание считает **сервер** из загруженного фото (надёжнее). Приложению
