@@ -87,10 +87,11 @@ flutter run
 Дополнительно в Xcode: Runner → General → Minimum Deployments → iOS 15.5.
 
 > **Про QR-сканер:** используется `google_mlkit_barcode_scanning` из того же
-> семейства, что и `google_mlkit_face_detection` — оба тянут одну версию
-> GoogleMLKit, конфликта подов нет. Не подключайте `mobile_scanner` вместе с
-> ними: он тянет другую версию GoogleMLKit → ошибка `could not find compatible
-> versions for pod "GoogleMLKit/MLKitCore"`.
+> семейства, что и `google_mlkit_face_detection`. При обновлении держите обе на
+> одной версии `google_mlkit_commons` (сейчас обе на `^0.12.0`: face `^0.14.0` +
+> barcode `^0.15.0`) — тогда GoogleMLKit один и конфликта подов нет. Не
+> подключайте `mobile_scanner`: он тянет другую версию GoogleMLKit → ошибка
+> `could not find compatible versions for pod "GoogleMLKit/MLKitCore"`.
 > Симптомы, если строка `platform :ios` осталась закомментированной:
 > `Automatically assigning platform iOS with version 13.0 … no platform was specified`
 > и `google_mlkit_commons requires a higher minimum iOS deployment version`.
