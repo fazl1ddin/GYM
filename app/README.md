@@ -43,10 +43,17 @@ flutter run
 ### 2. Версии SDK
 **Android** — `android/app/build.gradle` → `minSdkVersion 24` (нужно для ML Kit и tflite).
 
-**iOS** — плагины ML Kit требуют минимум **iOS 15.5**. В `ios/Podfile`:
-```ruby
-platform :ios, '15.5'                 # раскомментировать и поставить 15.5
+**iOS** — плагины ML Kit требуют минимум **iOS 15.5**.
 
+**Шаг 1 (обязательно).** В самом верху `ios/Podfile` есть **закомментированная** строка
+вида `# platform :ios, '13.0'`. **Уберите `#` и поставьте 15.5** — без этой строки
+CocoaPods берёт 13.0 («no platform was specified») и сборка падает:
+```ruby
+platform :ios, '15.5'
+```
+
+**Шаг 2.** В блок `post_install` того же `Podfile` добавьте принудительный таргет:
+```ruby
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
@@ -56,9 +63,19 @@ post_install do |installer|
   end
 end
 ```
-Затем `cd ios && pod install` (при ошибке: `rm -rf Pods Podfile.lock && pod install`).
-В Xcode: Runner → General → Minimum Deployments → iOS 15.5.
-> Без этого сборка падает: `google_mlkit_commons requires a higher minimum iOS deployment version`.
+
+**Шаг 3.** Чистая переустановка подов и запуск:
+```bash
+cd ios
+rm -rf Pods Podfile.lock
+pod install --repo-update
+cd ..
+flutter run
+```
+Дополнительно в Xcode: Runner → General → Minimum Deployments → iOS 15.5.
+> Симптомы, если строка `platform :ios` осталась закомментированной:
+> `Automatically assigning platform iOS with version 13.0 … no platform was specified`
+> и `google_mlkit_commons requires a higher minimum iOS deployment version`.
 
 ### 3. Модель распознавания — не нужна
 Распознавание считает **сервер** из загруженного фото (надёжнее). Приложению
