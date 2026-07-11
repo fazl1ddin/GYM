@@ -13,12 +13,12 @@ dependencies:
   http: ^1.2.2                          # обращение к API
   provider: ^6.1.2                      # состояние (сессия)
   camera: ^0.11.0+2                     # камера для съёмки лица
-  google_mlkit_face_detection: ^0.13.1  # детекция лица + сигналы живости
+  google_mlkit_face_detection: ^0.14.0  # детекция лица + сигналы живости
   geolocator: ^13.0.2                   # геолокация (геозона)
   shared_preferences: ^2.3.3            # хранение id устройства / базового URL
   device_info_plus: ^11.2.0             # id устройства, признаки эмулятора
   image: ^4.3.0                         # обрезка/кодирование кадра лица
-  google_mlkit_barcode_scanning: ^0.13.1 # скан QR тем же ML Kit, что и лицо (без конфликта версий)
+  google_mlkit_barcode_scanning: ^0.15.0 # скан QR тем же ML Kit, что и лицо (одна версия commons)
   qr_flutter: ^4.1.0                    # показ динамического QR на терминале места
   share_plus: ^10.1.2                   # экспорт табеля (CSV)
   tflite_flutter: ^0.11.0               # (опц.) эмбеддинг лица на устройстве
