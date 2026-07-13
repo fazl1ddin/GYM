@@ -121,24 +121,45 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
                               Text(w.name, style: const TextStyle(fontWeight: FontWeight.w700)),
                               if (w.address != null)
                                 Text(w.address!, style: const TextStyle(color: AppColors.inkSoft, fontSize: 13)),
+                              const SizedBox(height: 3),
                               Text(
                                 w.lat != null
                                     ? 'радиус ${w.radiusM} м · ${w.lat!.toStringAsFixed(4)}, ${w.lng!.toStringAsFixed(4)}'
                                     : 'координаты не заданы',
-                                style: const TextStyle(color: AppColors.inkSoft, fontSize: 12),
+                                style: TextStyle(
+                                  color: w.lat != null ? AppColors.accent : AppColors.warning,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        IconButton(
-                          tooltip: 'Показать QR терминала',
-                          icon: const Icon(Icons.qr_code_2, color: AppColors.accent),
-                          onPressed: () => Navigator.push(context, MaterialPageRoute(
+                        GestureDetector(
+                          onTap: () => Navigator.push(context, MaterialPageRoute(
                               builder: (_) => QrTerminalScreen(workplaceId: w.id, workplaceName: w.name))),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.accentSoft,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.qr_code_2, color: AppColors.accent, size: 22),
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, color: AppColors.danger),
-                          onPressed: () => _delete(w),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => _delete(w),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.danger.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.delete_outline, color: AppColors.danger, size: 22),
+                          ),
                         ),
                       ],
                     ),

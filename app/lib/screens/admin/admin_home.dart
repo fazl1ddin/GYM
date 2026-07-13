@@ -93,7 +93,7 @@ class _OverviewTabState extends State<_OverviewTab> {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.5,
+            childAspectRatio: 1.28,
             children: [
               _stat('На смене', '${s['onShift'] ?? 0}', Icons.badge, AppColors.success),
               _stat('Сотрудников', '${s['employees'] ?? 0}', Icons.people, AppColors.accent),
@@ -107,14 +107,23 @@ class _OverviewTabState extends State<_OverviewTab> {
   }
 
   Widget _stat(String label, String value, IconData icon, Color color) => SoftCard(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 24),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
             const Spacer(),
-            Text(value, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
-            Text(label, style: const TextStyle(color: AppColors.inkSoft, fontSize: 13)),
+            Text(value, style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800, height: 1)),
+            const SizedBox(height: 2),
+            Text(label, style: const TextStyle(color: AppColors.inkSoft, fontSize: 12.5, fontWeight: FontWeight.w600)),
           ],
         ),
       );
