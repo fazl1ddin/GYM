@@ -16,6 +16,10 @@ class AppColors {
 }
 
 class AppTheme {
+  /// Системный шрифт iOS (SF Pro) — как в дизайн-макете. На iOS имя с точкой
+  /// резолвится в системный San Francisco; на других платформах — дефолт.
+  static const String fontFamily = '.SF Pro Text';
+
   static ThemeData light() {
     final base = ThemeData.light(useMaterial3: true);
     return base.copyWith(
@@ -34,7 +38,8 @@ class AppTheme {
           color: AppColors.ink, fontSize: 20, fontWeight: FontWeight.w800),
       ),
       textTheme: base.textTheme.apply(
-        bodyColor: AppColors.ink, displayColor: AppColors.ink),
+        fontFamily: fontFamily, bodyColor: AppColors.ink, displayColor: AppColors.ink),
+      primaryTextTheme: base.primaryTextTheme.apply(fontFamily: fontFamily),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.accent,

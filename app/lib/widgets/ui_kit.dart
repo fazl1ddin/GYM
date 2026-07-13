@@ -95,15 +95,8 @@ class AppBottomNav extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: on ? AppColors.accentSoft : Colors.transparent,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Icon(items[i].icon, size: 22, color: on ? AppColors.accent : AppColors.inkSoft),
-                      ),
-                      const SizedBox(height: 4),
+                      Icon(items[i].icon, size: 24, color: on ? AppColors.accent : AppColors.inkSoft),
+                      const SizedBox(height: 5),
                       Text(items[i].label,
                           style: TextStyle(
                             fontSize: 11,
