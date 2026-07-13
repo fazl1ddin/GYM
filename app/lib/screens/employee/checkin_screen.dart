@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image/image.dart' as img;
 import '../../api/api_client.dart';
 import '../../api/models.dart';
 import '../../services/device_service.dart';
@@ -120,13 +121,23 @@ class _CheckinScreenState extends State<CheckinScreen> {
     try {
       await _controller!.stopImageStream();
       final shot = await _controller!.takePicture();
-      final faces = await FaceService.detectFromInputImage(
-          InputImage.fromFilePath(shot.path));
-      if (faces.isEmpty) throw 'Лицо не найдено, повторите';
-      // Распознаёт сервер по фото; вектор с устройства — опционально.
+      // «Выпрямляем» снимок по EXIF (фронтальная камера iOS иначе даёт ориентацию,
+      // на которой лицо не находится). Авторитетно лицо проверяет сервер.
+      final raw = await File(shot.path).readAsBytes();
+      final decoded = img.decodeImage(raw);
+      final upright = decoded != null ? img.bakeOrientation(decoded) : null;
+      if (upright != null) {
+        await File(shot.path).writeAsBytes(img.encodeJpg(upright, quality: 90));
+      }
+      // Клиентская детекция не фатальна — нужна лишь для опционального эмбеддинга.
       List<double>? embedding;
       if (FaceService.modelReady) {
-        try { embedding = await FaceService.embedFromFile(shot.path, faces.first); } catch (_) {}
+        try {
+          final faces = await FaceService.detectFromInputImage(InputImage.fromFilePath(shot.path));
+          if (faces.isNotEmpty) {
+            embedding = await FaceService.embedFromFile(shot.path, faces.first);
+          }
+        } catch (_) {}
       }
       final photo = base64Encode(await File(shot.path).readAsBytes());
 

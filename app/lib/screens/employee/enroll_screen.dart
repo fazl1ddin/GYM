@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image/image.dart' as img;
 import '../../api/api_client.dart';
 import '../../services/device_service.dart';
 import '../../services/face_service.dart';
@@ -115,14 +116,24 @@ class _EnrollScreenState extends State<EnrollScreen> {
     try {
       await _scanKey.currentState?.stopStream();
       final shot = await _controller!.takePicture();
-      final faces = await FaceService.detectFromInputImage(
-          InputImage.fromFilePath(shot.path));
-      if (faces.isEmpty) throw 'Лицо не найдено, попробуйте ещё раз';
-      // Эмбеддинг считает сервер из фото; если на устройстве есть модель —
-      // добавим вектор дополнительно (не обязателен).
+      // «Выпрямляем» снимок по EXIF — иначе фронтальная камера iOS отдаёт кадр
+      // с ориентацией, на которой детектор (и сервер) может не найти лицо.
+      final raw = await File(shot.path).readAsBytes();
+      final decoded = img.decodeImage(raw);
+      final upright = decoded != null ? img.bakeOrientation(decoded) : null;
+      if (upright != null) {
+        await File(shot.path).writeAsBytes(img.encodeJpg(upright, quality: 90));
+      }
+      // Клиентская детекция — не фатальна: авторитетно лицо проверяет сервер.
+      // Локально она нужна лишь для опционального эмбеддинга (если есть модель).
       List<double>? embedding;
       if (FaceService.modelReady) {
-        try { embedding = await FaceService.embedFromFile(shot.path, faces.first); } catch (_) {}
+        try {
+          final faces = await FaceService.detectFromInputImage(InputImage.fromFilePath(shot.path));
+          if (faces.isNotEmpty) {
+            embedding = await FaceService.embedFromFile(shot.path, faces.first);
+          }
+        } catch (_) {}
       }
       final photo = base64Encode(await File(shot.path).readAsBytes());
       final dataUrl = 'data:image/jpeg;base64,$photo';
