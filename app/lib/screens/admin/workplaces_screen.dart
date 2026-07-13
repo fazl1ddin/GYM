@@ -32,12 +32,14 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _add() async {
+  Future<void> _add() => _openForm(null);
+
+  Future<void> _openForm(Workplace? w) async {
     final changed = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.bg,
-      builder: (_) => const _WorkplaceForm(),
+      builder: (_) => _WorkplaceForm(workplace: w),
     );
     if (changed == true) _load();
   }
@@ -109,7 +111,10 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) {
                   final w = _items[i];
-                  return SoftCard(
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _openForm(w),
+                    child: SoftCard(
                     child: Row(
                       children: [
                         _thumb(w),
@@ -163,6 +168,7 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
                         ),
                       ],
                     ),
+                  ),
                   );
                 },
               ),
@@ -172,7 +178,8 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
 }
 
 class _WorkplaceForm extends StatefulWidget {
-  const _WorkplaceForm();
+  final Workplace? workplace;
+  const _WorkplaceForm({this.workplace});
   @override
   State<_WorkplaceForm> createState() => _WorkplaceFormState();
 }
@@ -187,7 +194,22 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
   bool _saving = false;
   String? _error;
 
+  bool get _editing => widget.workplace != null;
   bool get _hasGeo => _lat != null && _lng != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final w = widget.workplace;
+    if (w != null) {
+      _name.text = w.name;
+      _address.text = w.address ?? '';
+      _lat = w.lat;
+      _lng = w.lng;
+      _radius = w.radiusM;
+      _requireQr = w.requireQr;
+    }
+  }
 
   @override
   void dispose() {
@@ -221,14 +243,19 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
     FocusScope.of(context).unfocus(); // прячем клавиатуру перед закрытием листа
     setState(() { _saving = true; _error = null; });
     try {
-      await ApiClient.instance.createWorkplace({
+      final body = {
         'name': _name.text.trim(),
         'address': _address.text.trim(),
         'lat': _lat,
         'lng': _lng,
         'radiusM': _radius,
         'requireQr': _requireQr,
-      });
+      };
+      if (_editing) {
+        await ApiClient.instance.updateWorkplace(widget.workplace!.id, body);
+      } else {
+        await ApiClient.instance.createWorkplace(body);
+      }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       setState(() => _error = e.toString());
@@ -247,8 +274,8 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Новое рабочее место',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+            Text(_editing ? 'Редактировать место' : 'Новое рабочее место',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
             const SizedBox(height: 16),
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Название')),
             const SizedBox(height: 12),
@@ -273,7 +300,7 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
               onPressed: _saving ? null : _save,
               child: _saving
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Создать'),
+                  : Text(_editing ? 'Сохранить' : 'Создать'),
             ),
             const SizedBox(height: 8),
           ],

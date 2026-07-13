@@ -178,6 +178,8 @@ class ApiClient {
 
   Future<void> createWorkplace(Map<String, dynamic> body) =>
       _request('POST', '/api/admin/workplaces', body);
+  Future<void> updateWorkplace(int id, Map<String, dynamic> body) =>
+      _request('PATCH', '/api/admin/workplaces/$id', body);
   Future<void> deleteWorkplace(int id) => _request('DELETE', '/api/admin/workplaces/$id');
   Future<Map<String, dynamic>> workplaceQr(int id) async =>
       Map<String, dynamic>.from(await _request('GET', '/api/admin/workplaces/$id/qr'));

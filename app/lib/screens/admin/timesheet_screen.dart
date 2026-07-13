@@ -83,7 +83,11 @@ class _TimesheetScreenState extends State<TimesheetScreen> {
           child: _loading
               ? const Center(child: CircularProgressIndicator())
               : _rows.isEmpty
-                  ? const Center(child: Text('Нет данных за период', style: TextStyle(color: AppColors.inkSoft)))
+                  ? const EmptyState(
+                      icon: Icons.event_busy_outlined,
+                      title: 'Нет данных за период',
+                      subtitle: 'Выберите другой диапазон дат или дождитесь отметок сотрудников',
+                    )
                   : SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: SingleChildScrollView(

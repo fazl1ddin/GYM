@@ -67,13 +67,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 20),
-                  Container(
-                    width: 64, height: 64,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [AppColors.accent, Color(0xFF57C8FF)]),
-                      borderRadius: BorderRadius.circular(18),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: 66, height: 66,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft, end: Alignment.bottomRight,
+                          colors: [AppColors.accent, Color(0xFF57C8FF)]),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [BoxShadow(color: AppColors.accent.withValues(alpha: 0.35), blurRadius: 20, offset: const Offset(0, 10))],
+                      ),
+                      child: const Icon(Icons.face_retouching_natural, color: Colors.white, size: 34),
                     ),
-                    child: const Icon(Icons.face_retouching_natural, color: Colors.white, size: 34),
                   ),
                   const SizedBox(height: 18),
                   const Text('FaceClock',
