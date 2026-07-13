@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import '../../api/api_client.dart';
 import '../../api/models.dart';
@@ -225,25 +226,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
                   padding: const EdgeInsets.all(18),
                   child: Column(
                     children: [
-                      SoftCard(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.verified_user, color: AppColors.accent, size: 20),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                _geoError != null
-                                    ? 'Геолокация недоступна: $_geoError'
-                                    : _geo != null
-                                        ? (_qr != null ? 'Геопозиция и QR получены' : 'Геопозиция получена')
-                                        : 'Определяем геопозицию…',
-                                style: const TextStyle(fontSize: 12.5, color: AppColors.inkSoft),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _statusRow(),
                       const SizedBox(height: 14),
                       Expanded(
                         child: FaceScanView(
@@ -262,6 +245,68 @@ class _CheckinScreenState extends State<CheckinScreen> {
                 ),
     );
   }
+
+  /// Метка/цвет чипа геозоны: проверяем расстояние до места и подмену.
+  /// Итоговое решение принимает сервер — это лишь подсказка пользователю.
+  (String, Color) _geoStatus() {
+    if (_geoError != null) return ('Ошибка', AppColors.danger);
+    final g = _geo;
+    if (g == null) return ('Поиск…', AppColors.warning);
+    if (g.mocked) return ('Подмена?', AppColors.danger);
+    final wp = _challenge?.workplace;
+    final lat = (wp?['lat'] as num?)?.toDouble();
+    final lng = (wp?['lng'] as num?)?.toDouble();
+    if (lat == null || lng == null) return ('Определена', AppColors.success);
+    final radius = (wp?['radiusM'] as num?)?.toDouble() ?? 150;
+    final dist = Geolocator.distanceBetween(g.lat, g.lng, lat, lng);
+    return dist <= radius ? ('В зоне', AppColors.success) : ('Вне зоны', AppColors.warning);
+  }
+
+  Widget _statusRow() {
+    final requireQr = _challenge?.workplace?['requireQr'] == true;
+    final live = _tracker?.passed ?? false;
+    final (geoVal, geoColor) = _geoStatus();
+    return Row(
+      children: [
+        _miniChip('Геозона', geoVal, geoColor),
+        const SizedBox(width: 8),
+        _miniChip('QR проходной',
+            !requireQr ? 'Не нужен' : (_qr != null ? 'Готово' : 'Нужен скан'),
+            !requireQr ? AppColors.inkSoft : (_qr != null ? AppColors.success : AppColors.warning)),
+        const SizedBox(width: 8),
+        _miniChip('Живость', live ? 'Пройдена' : 'Проверка…',
+            live ? AppColors.success : AppColors.warning),
+      ],
+    );
+  }
+
+  Widget _miniChip(String key, String val, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+          decoration: BoxDecoration(
+            color: AppColors.panel,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.line),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(key, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.inkSoft)),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(val,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: color)),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget _qrGate() => Padding(
         padding: const EdgeInsets.all(24),

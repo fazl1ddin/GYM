@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../api/api_client.dart';
 import '../../api/models.dart';
@@ -22,7 +23,9 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
+    // Спиннер только при первой загрузке — иначе refresh/delete срывал бы
+    // весь список (и все мини-карты) в пересборку.
+    if (_items.isEmpty) setState(() => _loading = true);
     try {
       _items = await ApiClient.instance.workplaces();
     } catch (_) {}
@@ -63,6 +66,18 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
     }
   }
 
+  Widget _thumb(Workplace w) => w.lat != null
+      ? _MiniMap(w.lat!, w.lng!)
+      : Container(
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(
+            color: AppColors.accentSoft,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.place, color: AppColors.accent),
+        );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +112,7 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
                   return SoftCard(
                     child: Row(
                       children: [
-                        const Icon(Icons.place, color: AppColors.accent),
+                        _thumb(w),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -282,4 +297,63 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
           ),
         ),
       );
+}
+
+/// Мини-карта места для карточки списка — статичный тайл OSM (одна кэшируемая
+/// картинка, без движка карты: не перегружает список и не нарушает tile policy).
+class _MiniMap extends StatelessWidget {
+  final double lat;
+  final double lng;
+  const _MiniMap(this.lat, this.lng);
+
+  static const int _z = 15;
+  static const double _size = 54;
+
+  @override
+  Widget build(BuildContext context) {
+    const n = 1 << _z; // 2^z тайлов по стороне
+    final latRad = lat * math.pi / 180;
+    final xf = (lng + 180) / 360 * n;
+    final yf = (1 - math.log(math.tan(latRad) + 1 / math.cos(latRad)) / math.pi) / 2 * n;
+    final xt = xf.floor(), yt = yf.floor();
+    final url = 'https://tile.openstreetmap.org/$_z/$xt/$yt.png';
+    // позиция точки внутри тайла (0..1) → пиксели превью
+    final px = (xf - xt) * _size;
+    final py = (yf - yt) * _size;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: _size,
+        height: _size,
+        color: const Color(0xFFE9EEF6),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.network(
+                url,
+                fit: BoxFit.cover,
+                headers: const {'User-Agent': 'FaceClock/1.0 (com.fazliddin.faceclock)'},
+                errorBuilder: (_, __, ___) =>
+                    const Center(child: Icon(Icons.place, color: AppColors.accent, size: 22)),
+              ),
+            ),
+            Positioned(
+              left: px - 5,
+              top: py - 5,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

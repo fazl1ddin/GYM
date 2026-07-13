@@ -10,9 +10,10 @@ import '../../services/face_service.dart';
 import '../../theme.dart';
 import '../../widgets/face_scan.dart';
 
-/// Регистрация лица: направляемый процесс. Пользователь центрирует лицо в овале,
-/// держит ровно ~1 сек (кольцо прогресса заполняется) — снимок делается сам.
-/// Регистрируется один раз, лучше — под контролем HR.
+/// Регистрация лица — направляемый многоракурсный процесс с проверкой живости:
+/// 1) «Центр» — держите лицо ровно в овале; 2) «Поворот» — поверните голову;
+/// 3) «Моргните» — моргните. После этого делается фронтальный снимок и
+/// отправляется на сервер. Регистрируется один раз, лучше под контролем HR.
 class EnrollScreen extends StatefulWidget {
   const EnrollScreen({super.key});
   @override
@@ -23,9 +24,14 @@ class _EnrollScreenState extends State<EnrollScreen> {
   final _scanKey = GlobalKey<FaceScanViewState>();
   CameraController? _controller;
   Face? _face;
-  bool _capturing = false;
+
+  int _step = 0;          // 0 центр · 1 поворот · 2 моргните
+  double _progress = 0;   // заполнение шага «центр» (по времени удержания)
+  double _ring = 0;       // значение кольца прогресса под текущий шаг
+  bool _eyesWereOpen = false;
+  bool _blinkClosed = false;
+  bool _submitting = false;
   bool _done = false;
-  double _progress = 0;
   Timer? _hold;
 
   @override
@@ -46,29 +52,62 @@ class _EnrollScreenState extends State<EnrollScreen> {
     return f.boundingBox.width > 120; // лицо достаточно крупное/близко
   }
 
-  /// Пока лицо ровно в кадре — заполняем прогресс; при полном — снимаем.
+  /// Шаг «центр» — по таймеру заполняем прогресс, пока лицо ровно в кадре.
   void _tick() {
-    if (_capturing || _done) return;
+    if (_submitting || _done || _step != 0) return;
     if (_faceOk) {
-      final next = (_progress + 0.09).clamp(0.0, 1.0);
-      setState(() => _progress = next);
-      if (next >= 1.0) _capture();
+      final n = (_progress + 0.08).clamp(0.0, 1.0);
+      setState(() { _progress = n; _ring = n; });
+      if (n >= 1.0) setState(() { _step = 1; _progress = 0; _ring = 0; });
     } else if (_progress != 0) {
-      setState(() => _progress = 0);
+      setState(() { _progress = 0; _ring = 0; });
     }
   }
 
-  String get _prompt {
-    if (_capturing) return 'Обработка…';
-    if (_face == null) return 'Поместите лицо в овал';
-    if (!_faceOk) return 'Придвиньтесь ближе';
-    return 'Держите ровно…';
+  /// Шаги «поворот» и «моргните» — по сигналам детектора лица.
+  void _onFace(Face? f) {
+    if (_submitting || _done) return;
+    _face = f;
+    if (f != null) {
+      if (_step == 1) {
+        final y = f.headEulerAngleY ?? 0;
+        _ring = (y.abs() / 22).clamp(0.0, 1.0);
+        if (y.abs() > 22) { _step = 2; _ring = 0; _eyesWereOpen = false; _blinkClosed = false; }
+      } else if (_step == 2) {
+        final l = f.leftEyeOpenProbability ?? 1;
+        final r = f.rightEyeOpenProbability ?? 1;
+        final open = l > 0.6 && r > 0.6;
+        final closed = l < 0.25 && r < 0.25;
+        if (open) {
+          // моргнули и снова открыли глаза → снимаем фронтальный кадр
+          if (_blinkClosed) { _submit(); return; }
+          _eyesWereOpen = true;
+        }
+        if (closed && _eyesWereOpen) _blinkClosed = true;
+        _ring = _blinkClosed ? 0.9 : (_eyesWereOpen ? 0.5 : 0.2);
+      }
+    }
+    if (mounted) setState(() {});
   }
 
-  Future<void> _capture() async {
-    if (_controller == null || !_faceOk || _capturing) return;
+  String get _prompt {
+    if (_submitting) return 'Обработка…';
+    switch (_step) {
+      case 0:
+        return _face == null ? 'Поместите лицо в овал' : (!_faceOk ? 'Придвиньтесь ближе' : 'Держите ровно…');
+      case 1:
+        return 'Медленно поверните голову в сторону';
+      case 2:
+        return 'Теперь моргните';
+      default:
+        return 'Готово';
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
     _hold?.cancel();
-    setState(() { _capturing = true; _progress = 1; });
+    setState(() { _submitting = true; _ring = 1; });
     try {
       await _scanKey.currentState?.stopStream();
       final shot = await _controller!.takePicture();
@@ -89,11 +128,19 @@ class _EnrollScreenState extends State<EnrollScreen> {
     } catch (e) {
       _snack(e.toString());
       if (mounted) {
-        // Возобновляем поток детекции: без этого onFace не вызывается,
-        // _face остаётся «залипшим» и авто-захват уходит в бесконечный цикл.
+        // Возобновляем поток детекции и начинаем заново с шага «центр»,
+        // иначе onFace не вызывается и процесс завис бы.
         await _scanKey.currentState?.resumeStream();
         if (!mounted) return;
-        setState(() { _capturing = false; _progress = 0; _face = null; });
+        setState(() {
+          _submitting = false;
+          _step = 0;
+          _progress = 0;
+          _ring = 0;
+          _eyesWereOpen = false;
+          _blinkClosed = false;
+          _face = null;
+        });
         _hold = Timer.periodic(const Duration(milliseconds: 90), (_) => _tick());
       }
     }
@@ -111,34 +158,35 @@ class _EnrollScreenState extends State<EnrollScreen> {
         padding: const EdgeInsets.all(18),
         child: Column(
           children: [
-            const Text('Смотрите прямо в камеру при хорошем освещении и держите лицо в овале.',
+            const Text('Смотрите в камеру при хорошем освещении и выполняйте подсказки — это подтверждает, что вы живой человек.',
                 style: TextStyle(color: AppColors.inkSoft)),
             const SizedBox(height: 12),
             Expanded(
               child: FaceScanView(
                 key: _scanKey,
                 onReady: (c) => _controller = c,
-                onFace: (f) {
-                  if (_capturing) return;
-                  setState(() => _face = f);
-                },
+                onFace: _onFace,
                 prompt: _prompt,
-                success: _faceOk,
-                progress: _progress,
+                success: _step >= 1,
+                progress: _ring,
               ),
             ),
             const SizedBox(height: 14),
             _steps(),
             const SizedBox(height: 14),
             ElevatedButton.icon(
-              onPressed: _faceOk && !_capturing ? _capture : null,
-              icon: _capturing
+              onPressed: null,
+              style: ElevatedButton.styleFrom(
+                disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.55),
+                disabledForegroundColor: Colors.white,
+              ),
+              icon: _submitting
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.camera_alt, color: Colors.white),
-              label: Text(_capturing ? 'Регистрируем…' : 'Снять и зарегистрировать'),
+                  : const Icon(Icons.auto_awesome, color: Colors.white),
+              label: Text(_submitting ? 'Регистрируем…' : 'Идёт проверка живости'),
             ),
             const SizedBox(height: 8),
-            const Text('Снимок сделается автоматически, когда лицо будет ровно в кадре',
+            const Text('Снимок и регистрация произойдут автоматически после всех шагов',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.inkSoft, fontSize: 12)),
           ],
@@ -147,19 +195,15 @@ class _EnrollScreenState extends State<EnrollScreen> {
     );
   }
 
-  Widget _steps() {
-    final centered = _faceOk || _capturing;
-    final holding = _faceOk && !_capturing;
-    return Row(
-      children: [
-        _stepChip('Наведите', done: centered, active: !centered),
-        const SizedBox(width: 8),
-        _stepChip('Держите ровно', done: _capturing, active: holding),
-        const SizedBox(width: 8),
-        _stepChip('Готово', done: _done, active: _capturing),
-      ],
-    );
-  }
+  Widget _steps() => Row(
+        children: [
+          _stepChip('Центр', done: _step > 0, active: _step == 0),
+          const SizedBox(width: 8),
+          _stepChip('Поворот', done: _step > 1, active: _step == 1),
+          const SizedBox(width: 8),
+          _stepChip('Моргните', done: _step > 2 || _submitting || _done, active: _step == 2),
+        ],
+      );
 
   Widget _stepChip(String label, {required bool done, required bool active}) {
     final Color bg, fg;

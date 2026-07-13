@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import '../../services/face_service.dart';
-import '../../theme.dart';
 
 /// Сканирование динамического QR на проходной (улучшение №3).
 /// Использует тот же ML Kit, что и распознавание лица (общий GoogleMLKit —
@@ -84,30 +83,88 @@ class _QrScanScreenState extends State<QrScanScreen> {
     final ctrl = _controller;
     return Scaffold(
       appBar: AppBar(title: const Text('Сканируйте QR на проходной')),
+      backgroundColor: Colors.black,
       body: ctrl == null || !ctrl.value.isInitialized
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
                 Positioned.fill(child: CameraPreview(ctrl)),
-                Center(
-                  child: Container(
+                const Center(
+                  child: SizedBox(
                     width: 240,
                     height: 240,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.accent, width: 3),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    child: CustomPaint(painter: _BracketPainter()),
                   ),
                 ),
-                const Positioned(
-                  left: 0, right: 0, bottom: 40,
+                Positioned(
+                  left: 0, right: 0, bottom: 44,
                   child: Center(
-                    child: Text('Наведите камеру на код терминала',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text('Наведите камеру на код терминала',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                    ),
                   ),
                 ),
               ],
             ),
     );
   }
+}
+
+/// Уголки-брекеты рамки сканирования QR (как в дизайне).
+class _BracketPainter extends CustomPainter {
+  const _BracketPainter();
+
+  static const _len = 34.0;
+  static const _r = 16.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 4
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    final w = size.width, h = size.height;
+    // верх-лево
+    canvas.drawPath(
+        Path()
+          ..moveTo(0, _len + _r)
+          ..lineTo(0, _r)
+          ..arcToPoint(const Offset(_r, 0), radius: const Radius.circular(_r))
+          ..lineTo(_len + _r, 0),
+        p);
+    // верх-право
+    canvas.drawPath(
+        Path()
+          ..moveTo(w - _len - _r, 0)
+          ..lineTo(w - _r, 0)
+          ..arcToPoint(Offset(w, _r), radius: const Radius.circular(_r))
+          ..lineTo(w, _len + _r),
+        p);
+    // низ-лево
+    canvas.drawPath(
+        Path()
+          ..moveTo(0, h - _len - _r)
+          ..lineTo(0, h - _r)
+          ..arcToPoint(Offset(_r, h), radius: const Radius.circular(_r), clockwise: false)
+          ..lineTo(_len + _r, h),
+        p);
+    // низ-право
+    canvas.drawPath(
+        Path()
+          ..moveTo(w - _len - _r, h)
+          ..lineTo(w - _r, h)
+          ..arcToPoint(Offset(w, h - _r), radius: const Radius.circular(_r), clockwise: false)
+          ..lineTo(w, h - _len - _r),
+        p);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
