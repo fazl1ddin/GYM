@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../api/api_client.dart';
 import '../../state/session.dart';
 import '../../theme.dart';
+import '../../widgets/ui_kit.dart';
 import 'employees_screen.dart';
 import 'anomalies_screen.dart';
 import 'workplaces_screen.dart';
@@ -27,25 +28,27 @@ class _AdminHomeState extends State<AdminHome> {
       WorkplacesScreen(),
     ];
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Администрирование'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => context.read<Session>().logout(),
-          ),
-        ],
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            AppHeader('Администрирование', actions: [
+              HeaderAction(Icons.logout, () => context.read<Session>().logout()),
+            ]),
+            Expanded(child: IndexedStack(index: _tab, children: pages)),
+          ],
+        ),
       ),
-      body: IndexedStack(index: _tab, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Обзор'),
-          NavigationDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: 'Сотрудники'),
-          NavigationDestination(icon: Icon(Icons.warning_amber_outlined), selectedIcon: Icon(Icons.warning), label: 'Аномалии'),
-          NavigationDestination(icon: Icon(Icons.table_chart_outlined), selectedIcon: Icon(Icons.table_chart), label: 'Табель'),
-          NavigationDestination(icon: Icon(Icons.place_outlined), selectedIcon: Icon(Icons.place), label: 'Места'),
+      bottomNavigationBar: AppBottomNav(
+        index: _tab,
+        onTap: (i) => setState(() => _tab = i),
+        items: const [
+          NavItem(Icons.dashboard_outlined, 'Обзор'),
+          NavItem(Icons.people_outline, 'Сотрудники'),
+          NavItem(Icons.warning_amber_rounded, 'Аномалии'),
+          NavItem(Icons.grid_view_rounded, 'Табель'),
+          NavItem(Icons.place_outlined, 'Места'),
         ],
       ),
     );
