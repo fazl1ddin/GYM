@@ -40,6 +40,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
   bool _offline = false; // сети нет — отметка уйдёт в офлайн-очередь
   String _prompt = 'Подготовка…';
   bool _capturing = false;
+  bool _ready = false; // живость пройдена — ждём ручного нажатия «Отметить»
   bool _done = false;
 
   bool get _needQr => _challenge?.workplace?['requireQr'] == true && _qr == null;
@@ -106,11 +107,12 @@ class _CheckinScreenState extends State<CheckinScreen> {
       if (f != null) _frames.add(f);
     }
     final hint = _tracker!.update(face);
-    setState(() => _prompt = hint);
-    if (_tracker!.passed) {
+    if (_tracker!.passed && !_ready) {
       final f = _scanKey.currentState?.snapshotDataUrl(); // кадр действия
       if (f != null) _frames.add(f);
-      _capture();
+      setState(() { _ready = true; _prompt = 'Живость подтверждена'; });
+    } else {
+      setState(() => _prompt = hint);
     }
   }
 
@@ -249,8 +251,22 @@ class _CheckinScreenState extends State<CheckinScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text('Выполните действие, которое просит приложение',
-                          style: TextStyle(color: AppColors.inkSoft, fontSize: 12.5)),
+                      ElevatedButton.icon(
+                        onPressed: (_ready && !_capturing) ? _capture : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.type == 'in' ? AppColors.accent : AppColors.ink,
+                          disabledBackgroundColor: (widget.type == 'in' ? AppColors.accent : AppColors.ink).withValues(alpha: 0.4),
+                          disabledForegroundColor: Colors.white,
+                        ),
+                        icon: _capturing
+                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            : const Icon(Icons.check, color: Colors.white),
+                        label: Text(_capturing
+                            ? 'Отправляем…'
+                            : (_ready
+                                ? (widget.type == 'in' ? 'Отметить приход' : 'Отметить уход')
+                                : 'Выполните действие на экране')),
+                      ),
                     ],
                   ),
                 ),

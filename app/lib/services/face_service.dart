@@ -14,7 +14,7 @@ class FaceService {
     options: FaceDetectorOptions(
       enableClassification: true, // вероятность улыбки, открытости глаз
       enableTracking: true,
-      performanceMode: FaceDetectorMode.accurate,
+      performanceMode: FaceDetectorMode.fast, // быстрый режим для живого потока
     ),
   );
 

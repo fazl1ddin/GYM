@@ -36,6 +36,8 @@ class FaceScanViewState extends State<FaceScanView> {
   CameraImage? _lastImage;
   bool _busy = false;
   bool _streaming = false;
+  DateTime _lastProc = DateTime.fromMillisecondsSinceEpoch(0);
+  static const Duration _minInterval = Duration(milliseconds: 150);
 
   /// JPEG текущего кадра (data-URL) для серверной проверки живости.
   String? snapshotDataUrl() =>
@@ -75,6 +77,11 @@ class FaceScanViewState extends State<FaceScanView> {
     await _controller!.startImageStream((image) async {
       _lastImage = image;
       if (_busy) return;
+      // Троттлинг: не чаще ~6 кадров/сек — детекция тяжёлая, поток отдаёт кадры
+      // намного чаще, чем нужно для плавной проверки живости.
+      final now = DateTime.now();
+      if (now.difference(_lastProc) < _minInterval) return;
+      _lastProc = now;
       _busy = true;
       try {
         final input = FaceService.inputImageFromCamera(

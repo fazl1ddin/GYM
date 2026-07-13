@@ -35,6 +35,7 @@ class _EnrollScreenState extends State<EnrollScreen> {
   double _ring = 0;       // значение кольца прогресса под текущий шаг
   bool _eyesWereOpen = false;
   bool _blinkClosed = false;
+  bool _ready = false;      // все шаги живости пройдены — ждём ручного нажатия
   bool _submitting = false;
   bool _done = false;
   Timer? _hold;
@@ -71,7 +72,7 @@ class _EnrollScreenState extends State<EnrollScreen> {
 
   /// Шаги «поворот» и «моргните» — по сигналам детектора лица.
   void _onFace(Face? f) {
-    if (_submitting || _done) return;
+    if (_submitting || _done || _ready) return;
     _face = f;
     if (f != null) {
       if (_step == 1) {
@@ -84,12 +85,12 @@ class _EnrollScreenState extends State<EnrollScreen> {
         final open = l > 0.6 && r > 0.6;
         final closed = l < 0.25 && r < 0.25;
         if (open) {
-          // моргнули и снова открыли глаза → снимаем фронтальный кадр
-          if (_blinkClosed) { _submit(); return; }
+          // моргнули и снова открыли глаза → живость пройдена, ждём нажатия
+          if (_blinkClosed) { _step = 3; _ring = 1; _ready = true; _hold?.cancel(); }
           _eyesWereOpen = true;
         }
         if (closed && _eyesWereOpen) _blinkClosed = true;
-        _ring = _blinkClosed ? 0.9 : (_eyesWereOpen ? 0.5 : 0.2);
+        if (!_ready) _ring = _blinkClosed ? 0.9 : (_eyesWereOpen ? 0.5 : 0.2);
       }
     }
     if (mounted) setState(() {});
@@ -105,7 +106,7 @@ class _EnrollScreenState extends State<EnrollScreen> {
       case 2:
         return 'Теперь моргните';
       default:
-        return 'Готово';
+        return 'Живость пройдена — нажмите кнопку';
     }
   }
 
@@ -153,6 +154,7 @@ class _EnrollScreenState extends State<EnrollScreen> {
         if (!mounted) return;
         setState(() {
           _submitting = false;
+          _ready = false;
           _step = 0;
           _progress = 0;
           _ring = 0;
@@ -194,20 +196,22 @@ class _EnrollScreenState extends State<EnrollScreen> {
             _steps(),
             const SizedBox(height: 14),
             ElevatedButton.icon(
-              onPressed: null,
+              onPressed: (_ready && !_submitting) ? _submit : null,
               style: ElevatedButton.styleFrom(
-                disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.55),
+                disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.4),
                 disabledForegroundColor: Colors.white,
               ),
               icon: _submitting
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.auto_awesome, color: Colors.white),
-              label: Text(_submitting ? 'Регистрируем…' : 'Идёт проверка живости'),
+                  : const Icon(Icons.camera_alt, color: Colors.white),
+              label: Text(_submitting
+                  ? 'Регистрируем…'
+                  : (_ready ? 'Снять и зарегистрировать' : 'Идёт проверка живости')),
             ),
             const SizedBox(height: 8),
-            const Text('Снимок и регистрация произойдут автоматически после всех шагов',
+            Text(_ready ? 'Живость подтверждена — нажмите кнопку' : 'Пройдите шаги: центр → поворот → моргните',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.inkSoft, fontSize: 12)),
+                style: const TextStyle(color: AppColors.inkSoft, fontSize: 12)),
           ],
         ),
       ),
