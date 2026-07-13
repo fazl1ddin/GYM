@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../api/api_client.dart';
 import '../../api/models.dart';
 import '../../theme.dart';
+import 'employee_detail_screen.dart';
 import 'employee_form.dart';
 
 class EmployeesScreen extends StatefulWidget {
@@ -96,7 +97,11 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) {
                   final u = _employees[i];
-                  return SoftCard(
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => EmployeeDetailScreen(user: u))),
+                    child: SoftCard(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     child: Row(
                       children: [
@@ -143,6 +148,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         ),
                       ],
                     ),
+                  ),
                   );
                 },
               ),

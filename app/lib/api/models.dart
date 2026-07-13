@@ -51,6 +51,12 @@ class AttendanceRecord {
   final double? distanceM;
   final String? employeeName;
   final String? photoRef;
+  // поля детализации
+  final String? workplaceName;
+  final double? lat;
+  final double? lng;
+  final bool? qrOk;
+  final bool offline;
 
   AttendanceRecord({
     required this.id,
@@ -62,6 +68,11 @@ class AttendanceRecord {
     this.distanceM,
     this.employeeName,
     this.photoRef,
+    this.workplaceName,
+    this.lat,
+    this.lng,
+    this.qrOk,
+    this.offline = false,
   });
 
   factory AttendanceRecord.fromJson(Map<String, dynamic> j) => AttendanceRecord(
@@ -74,6 +85,11 @@ class AttendanceRecord {
         distanceM: (j['distanceM'] as num?)?.toDouble(),
         employeeName: j['employeeName'],
         photoRef: j['photoRef'],
+        workplaceName: j['workplaceName'],
+        lat: (j['lat'] as num?)?.toDouble(),
+        lng: (j['lng'] as num?)?.toDouble(),
+        qrOk: j['qrOk'] as bool?,
+        offline: j['offline'] == true,
       );
 }
 

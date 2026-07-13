@@ -521,6 +521,9 @@ app.delete('/api/admin/workplaces/:id', requireAuth, requireAdmin, (req, res) =>
 // ---- attendance log + anomalies ----
 function attendanceRow(r) {
   const emp = db.prepare('SELECT name FROM employees WHERE id = ?').get(r.employee_id);
+  const wp = r.workplace_id
+    ? db.prepare('SELECT name FROM workplaces WHERE id = ?').get(r.workplace_id)
+    : null;
   return {
     id: r.id, employeeId: r.employee_id, employeeName: emp?.name || '—',
     type: r.type, time: r.server_time, status: r.status,
@@ -528,13 +531,21 @@ function attendanceRow(r) {
     distanceM: r.distance_m, riskScore: r.risk_score,
     riskFlags: JSON.parse(r.risk_flags || '[]'), photoRef: r.photo_ref,
     decisionComment: r.decision_comment,
+    // поля детализации
+    workplaceName: wp?.name || null,
+    lat: r.geo_lat, lng: r.geo_lng, accuracy: r.geo_accuracy,
+    qrOk: r.qr_ok == null ? null : !!r.qr_ok,
+    offline: !!r.offline,
+    challenge: r.liveness_challenge,
   };
 }
 app.get('/api/admin/attendance', requireAuth, requireAdmin, (req, res) => {
-  const { status } = req.query;
-  const rows = status
-    ? db.prepare('SELECT * FROM attendance WHERE status = ? ORDER BY server_time DESC LIMIT 200').all(String(status))
-    : db.prepare('SELECT * FROM attendance ORDER BY server_time DESC LIMIT 200').all();
+  const { status, employeeId } = req.query;
+  const clauses = [], params = [];
+  if (status) { clauses.push('status = ?'); params.push(String(status)); }
+  if (employeeId) { clauses.push('employee_id = ?'); params.push(Number(employeeId)); }
+  const where = clauses.length ? 'WHERE ' + clauses.join(' AND ') : '';
+  const rows = db.prepare(`SELECT * FROM attendance ${where} ORDER BY server_time DESC LIMIT 200`).all(...params);
   res.json({ records: rows.map(attendanceRow) });
 });
 app.get('/api/admin/anomalies', requireAuth, requireAdmin, (req, res) => {
@@ -559,14 +570,45 @@ app.get('/api/admin/photo/:ref', requireAuth, requireAdmin, (req, res) => {
 });
 app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
   const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
-  res.json({
-    employees: db.prepare("SELECT COUNT(*) c FROM employees WHERE role='employee'").get().c,
-    onShift: db.prepare(`SELECT COUNT(*) c FROM (
+  const sod = startOfDay.getTime();
+  const one = (sql, ...p) => db.prepare(sql).get(...p).c;
+
+  const employees = one("SELECT COUNT(*) c FROM employees WHERE role='employee'");
+  const onShift = one(`SELECT COUNT(*) c FROM (
       SELECT a.employee_id, a.type FROM attendance a
       JOIN (SELECT employee_id, MAX(server_time) mt FROM attendance WHERE status IN ('confirmed','pending') GROUP BY employee_id) l
-      ON a.employee_id=l.employee_id AND a.server_time=l.mt WHERE a.type='in')`).get().c,
-    pending: db.prepare("SELECT COUNT(*) c FROM attendance WHERE status='pending'").get().c,
-    todayEvents: db.prepare('SELECT COUNT(*) c FROM attendance WHERE server_time >= ?').get(startOfDay.getTime()).c,
+      ON a.employee_id=l.employee_id AND a.server_time=l.mt WHERE a.type='in')`);
+  const checkinsToday = one("SELECT COUNT(DISTINCT employee_id) c FROM attendance WHERE type='in' AND server_time >= ?", sod);
+
+  // Опоздания: первый 'in' за сегодня позже начала смены рабочего места.
+  const firstIns = db.prepare(`
+    SELECT a.employee_id eid, MIN(a.server_time) t,
+           COALESCE(w.work_start, '09:00') ws
+    FROM attendance a
+    LEFT JOIN employees e ON e.id = a.employee_id
+    LEFT JOIN workplaces w ON w.id = COALESCE(a.workplace_id, e.workplace_id)
+    WHERE a.type='in' AND a.server_time >= ? GROUP BY a.employee_id`).all(sod);
+  let lateToday = 0;
+  for (const r of firstIns) {
+    const [h, m] = String(r.ws).split(':').map(Number);
+    const shiftStart = new Date(startOfDay); shiftStart.setHours(h || 9, m || 0, 0, 0);
+    if (r.t > shiftStart.getTime()) lateToday++;
+  }
+
+  res.json({
+    employees,
+    onShift,
+    pending: one("SELECT COUNT(*) c FROM attendance WHERE status='pending'"),
+    todayEvents: one('SELECT COUNT(*) c FROM attendance WHERE server_time >= ?', sod),
+    checkinsToday,
+    lateToday,
+    absentToday: Math.max(0, employees - checkinsToday),
+    confirmedToday: one("SELECT COUNT(*) c FROM attendance WHERE status='confirmed' AND server_time >= ?", sod),
+    rejectedToday: one("SELECT COUNT(*) c FROM attendance WHERE status='rejected' AND server_time >= ?", sod),
+    highRiskToday: one("SELECT COUNT(*) c FROM attendance WHERE risk_score >= 60 AND server_time >= ?", sod),
+    offlineToday: one("SELECT COUNT(*) c FROM attendance WHERE offline=1 AND server_time >= ?", sod),
+    enrolled: one("SELECT COUNT(*) c FROM employees WHERE enrolled=1 AND role='employee'"),
+    workplaces: one('SELECT COUNT(*) c FROM workplaces'),
   });
 });
 

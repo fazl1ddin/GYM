@@ -83,31 +83,54 @@ class _OverviewTabState extends State<_OverviewTab> {
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     final s = _stats ?? {};
+    String v(String k) => '${s[k] ?? 0}';
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.fromLTRB(18, 2, 18, 24),
         children: [
-          const Text('Сегодня', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 16),
+          _section('Сегодня', [
+            _stat('Приходов', v('checkinsToday'), Icons.login, AppColors.accent),
+            _stat('На смене', v('onShift'), Icons.badge, AppColors.success),
+            _stat('Опоздали', v('lateToday'), Icons.timer_off, AppColors.warning),
+            _stat('Отсутствуют', v('absentToday'), Icons.person_off, AppColors.danger),
+            _stat('На проверке', v('pending'), Icons.hourglass_bottom, AppColors.warning),
+            _stat('Событий', v('todayEvents'), Icons.event_note, AppColors.ink),
+          ]),
+          _section('Проверки сегодня', [
+            _stat('Подтверждено', v('confirmedToday'), Icons.check_circle, AppColors.success),
+            _stat('Отклонено', v('rejectedToday'), Icons.cancel, AppColors.danger),
+            _stat('Высокий риск', v('highRiskToday'), Icons.gpp_maybe, AppColors.warning),
+            _stat('Офлайн', v('offlineToday'), Icons.cloud_off, AppColors.ink),
+          ]),
+          _section('Всего', [
+            _stat('Сотрудников', v('employees'), Icons.people, AppColors.accent),
+            _stat('Лицо зарег.', v('enrolled'), Icons.face_retouching_natural, AppColors.success),
+            _stat('Рабочих мест', v('workplaces'), Icons.place, AppColors.ink),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _section(String title, List<Widget> cards) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 14, 0, 12),
+            child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+          ),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.28,
-            children: [
-              _stat('На смене', '${s['onShift'] ?? 0}', Icons.badge, AppColors.success),
-              _stat('Сотрудников', '${s['employees'] ?? 0}', Icons.people, AppColors.accent),
-              _stat('На проверке', '${s['pending'] ?? 0}', Icons.warning_amber, AppColors.warning),
-              _stat('Событий за день', '${s['todayEvents'] ?? 0}', Icons.event_note, AppColors.ink),
-            ],
+            childAspectRatio: 1.32,
+            children: cards,
           ),
         ],
-      ),
-    );
-  }
+      );
 
   Widget _stat(String label, String value, IconData icon, Color color) => SoftCard(
         padding: const EdgeInsets.all(16),

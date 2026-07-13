@@ -189,8 +189,12 @@ class ApiClient {
     return (d['records'] as List).map((e) => AttendanceRecord.fromJson(e)).toList();
   }
 
-  Future<List<AttendanceRecord>> attendanceLog({String? status}) async {
-    final q = status != null ? '?status=$status' : '';
+  Future<List<AttendanceRecord>> attendanceLog({String? status, int? employeeId}) async {
+    final params = <String>[
+      if (status != null) 'status=$status',
+      if (employeeId != null) 'employeeId=$employeeId',
+    ];
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
     final d = await _request('GET', '/api/admin/attendance$q');
     return (d['records'] as List).map((e) => AttendanceRecord.fromJson(e)).toList();
   }
