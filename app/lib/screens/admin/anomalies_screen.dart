@@ -121,7 +121,7 @@ class _AnomaliesScreenState extends State<AnomaliesScreen> {
                     .map((f) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.warning.withOpacity(0.12),
+                            color: AppColors.warning.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(f, style: const TextStyle(color: AppColors.warning, fontSize: 12)),
@@ -166,7 +166,7 @@ class _AnomaliesScreenState extends State<AnomaliesScreen> {
     final color = score >= 60 ? AppColors.danger : AppColors.warning;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
       child: Column(
         children: [
           Text('$score', style: TextStyle(color: color, fontWeight: FontWeight.w800, fontSize: 16)),

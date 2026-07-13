@@ -19,7 +19,7 @@ class _AdminHomeState extends State<AdminHome> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = const [
+    const pages = [
       _OverviewTab(),
       EmployeesScreen(),
       AnomaliesScreen(),

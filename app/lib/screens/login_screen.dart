@@ -16,7 +16,15 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   String? _error;
 
+  @override
+  void dispose() {
+    _login.dispose();
+    _pass.dispose();
+    super.dispose();
+  }
+
   Future<void> _submit() async {
+    FocusScope.of(context).unfocus(); // прячем клавиатуру до смены экрана
     setState(() { _loading = true; _error = null; });
     try {
       await context.read<Session>().login(_login.text.trim(), _pass.text);
@@ -35,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Адрес сервера'),
         content: TextField(
           controller: ctrl,
-          decoration: const InputDecoration(hintText: 'http://10.0.2.2:3000'),
+          decoration: const InputDecoration(hintText: 'http://192.168.68.100:3000'),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),

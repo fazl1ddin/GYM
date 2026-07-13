@@ -12,10 +12,13 @@ class Session extends ChangeNotifier {
 
   Future<void> bootstrap() async {
     await ApiClient.instance.init();
-    try {
-      user = await ApiClient.instance.me();
-    } catch (_) {
-      user = null;
+    // Без сохранённой сессии в сеть не ходим — сразу показываем экран логина.
+    if (ApiClient.instance.hasSession) {
+      try {
+        user = await ApiClient.instance.me();
+      } catch (_) {
+        user = null;
+      }
     }
     booting = false;
     notifyListeners();

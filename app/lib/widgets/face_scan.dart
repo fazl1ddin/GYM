@@ -13,12 +13,17 @@ class FaceScanView extends StatefulWidget {
   final void Function(Face? face) onFace;
   final String prompt;
   final bool success;
+
+  /// Прогресс удержания лица 0..1 — рисует кольцо вокруг овала (0 = скрыто).
+  final double progress;
+
   const FaceScanView({
     super.key,
     required this.onReady,
     required this.onFace,
     required this.prompt,
     this.success = false,
+    this.progress = 0,
   });
 
   @override
@@ -94,6 +99,9 @@ class FaceScanViewState extends State<FaceScanView> {
     }
   }
 
+  /// Возобновляет поток детекции (после снимка или ошибки).
+  Future<void> resumeStream() => _startStream();
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -130,6 +138,20 @@ class FaceScanViewState extends State<FaceScanView> {
                         ),
                       ),
                     ),
+                    // кольцо прогресса удержания
+                    if (widget.progress > 0)
+                      Center(
+                        child: SizedBox(
+                          width: 264,
+                          height: 264,
+                          child: CircularProgressIndicator(
+                            value: widget.progress.clamp(0, 1),
+                            strokeWidth: 5,
+                            color: color,
+                            backgroundColor: Colors.white.withValues(alpha: 0.22),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

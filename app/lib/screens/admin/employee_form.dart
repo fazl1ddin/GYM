@@ -35,7 +35,16 @@ class _EmployeeFormState extends State<EmployeeForm> {
     _workplaceId = u?.workplaceId;
   }
 
+  @override
+  void dispose() {
+    _name.dispose();
+    _login.dispose();
+    _pass.dispose();
+    super.dispose();
+  }
+
   Future<void> _save() async {
+    FocusScope.of(context).unfocus(); // прячем клавиатуру перед закрытием формы
     setState(() { _saving = true; _error = null; });
     try {
       if (_editing) {
@@ -109,7 +118,7 @@ class _EmployeeFormState extends State<EmployeeForm> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int?>(
-              value: _workplaceId,
+              initialValue: _workplaceId,
               decoration: const InputDecoration(labelText: 'Рабочее место'),
               items: [
                 const DropdownMenuItem(value: null, child: Text('Не указано')),
@@ -122,7 +131,7 @@ class _EmployeeFormState extends State<EmployeeForm> {
               contentPadding: EdgeInsets.zero,
               title: const Text('Роль администратора'),
               value: _isAdmin,
-              activeColor: AppColors.accent,
+              activeThumbColor: AppColors.accent,
               onChanged: (v) => setState(() => _isAdmin = v),
             ),
             if (_editing)
@@ -130,7 +139,7 @@ class _EmployeeFormState extends State<EmployeeForm> {
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Активен'),
                 value: _active,
-                activeColor: AppColors.success,
+                activeThumbColor: AppColors.success,
                 onChanged: (v) => setState(() => _active = v),
               ),
             if (_editing)

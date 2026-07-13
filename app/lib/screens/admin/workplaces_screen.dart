@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../api/api_client.dart';
 import '../../api/models.dart';
-import '../../services/location_service.dart';
 import '../../theme.dart';
+import 'map_picker_screen.dart';
 import 'qr_terminal_screen.dart';
 
 class WorkplacesScreen extends StatefulWidget {
@@ -40,8 +40,27 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
   }
 
   Future<void> _delete(Workplace w) async {
-    await ApiClient.instance.deleteWorkplace(w.id);
-    _load();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Удалить рабочее место?'),
+        content: Text('«${w.name}» будет удалено. Отметки сотрудников сохранятся.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Отмена')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить', style: TextStyle(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ApiClient.instance.deleteWorkplace(w.id);
+      _load();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
   }
 
   @override
@@ -58,7 +77,18 @@ class _WorkplacesScreenState extends State<WorkplacesScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView.separated(
+              child: _items.isEmpty
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                      SizedBox(height: 60),
+                      EmptyState(
+                        icon: Icons.location_off_outlined,
+                        title: 'Пока нет рабочих мест',
+                        subtitle: 'Добавьте первое место кнопкой «Добавить» и задайте геозону на карте',
+                      ),
+                    ])
+                  : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 90),
                 itemCount: _items.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -114,34 +144,53 @@ class _WorkplaceForm extends StatefulWidget {
 class _WorkplaceFormState extends State<_WorkplaceForm> {
   final _name = TextEditingController();
   final _address = TextEditingController();
-  final _lat = TextEditingController();
-  final _lng = TextEditingController();
-  final _radius = TextEditingController(text: '150');
+  double? _lat;
+  double? _lng;
+  int _radius = 150;
   bool _requireQr = false;
   bool _saving = false;
   String? _error;
 
-  Future<void> _useMyLocation() async {
-    try {
-      final g = await LocationService.current();
+  bool get _hasGeo => _lat != null && _lng != null;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _address.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickOnMap() async {
+    FocusScope.of(context).unfocus();
+    final zone = await Navigator.push<GeoZone>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MapPickerScreen(
+          initialLat: _lat,
+          initialLng: _lng,
+          initialRadius: _radius,
+        ),
+      ),
+    );
+    if (zone != null) {
       setState(() {
-        _lat.text = g.lat.toStringAsFixed(6);
-        _lng.text = g.lng.toStringAsFixed(6);
+        _lat = zone.lat;
+        _lng = zone.lng;
+        _radius = zone.radiusM;
       });
-    } catch (e) {
-      setState(() => _error = e.toString());
     }
   }
 
   Future<void> _save() async {
+    FocusScope.of(context).unfocus(); // прячем клавиатуру перед закрытием листа
     setState(() { _saving = true; _error = null; });
     try {
       await ApiClient.instance.createWorkplace({
         'name': _name.text.trim(),
         'address': _address.text.trim(),
-        'lat': double.tryParse(_lat.text),
-        'lng': double.tryParse(_lng.text),
-        'radiusM': int.tryParse(_radius.text) ?? 150,
+        'lat': _lat,
+        'lng': _lng,
+        'radiusM': _radius,
         'requireQr': _requireQr,
       });
       if (mounted) Navigator.pop(context, true);
@@ -169,25 +218,14 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
             const SizedBox(height: 12),
             TextField(controller: _address, decoration: const InputDecoration(labelText: 'Адрес')),
             const SizedBox(height: 12),
-            Row(children: [
-              Expanded(child: TextField(controller: _lat, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Широта'))),
-              const SizedBox(width: 10),
-              Expanded(child: TextField(controller: _lng, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Долгота'))),
-            ]),
-            const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: _useMyLocation,
-              icon: const Icon(Icons.my_location, size: 18),
-              label: const Text('Взять мои координаты'),
-            ),
+            _geoCard(),
             const SizedBox(height: 4),
-            TextField(controller: _radius, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Радиус геозоны, м')),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Требовать QR проходной'),
               subtitle: const Text('Отметка только после сканирования кода терминала'),
               value: _requireQr,
-              activeColor: AppColors.accent,
+              activeThumbColor: AppColors.accent,
               onChanged: (v) => setState(() => _requireQr = v),
             ),
             if (_error != null) ...[
@@ -207,4 +245,41 @@ class _WorkplaceFormState extends State<_WorkplaceForm> {
       ),
     );
   }
+
+  Widget _geoCard() => InkWell(
+        onTap: _pickOnMap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.panel,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _hasGeo ? AppColors.accent : AppColors.line),
+          ),
+          child: Row(
+            children: [
+              Icon(_hasGeo ? Icons.location_on : Icons.add_location_alt,
+                  color: AppColors.accent),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_hasGeo ? 'Геозона задана' : 'Выбрать геозону на карте',
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text(
+                      _hasGeo
+                          ? 'радиус $_radius м · ${_lat!.toStringAsFixed(4)}, ${_lng!.toStringAsFixed(4)}'
+                          : 'Точка и радиус зоны отметки',
+                      style: const TextStyle(color: AppColors.inkSoft, fontSize: 12.5),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppColors.inkSoft),
+            ],
+          ),
+        ),
+      );
 }

@@ -50,7 +50,7 @@ class _EmployeeHomeState extends State<EmployeeHome> {
     if (!user.enrolled) {
       final done = await Navigator.push<bool>(
           context, MaterialPageRoute(builder: (_) => const EnrollScreen()));
-      if (done == true) await context.read<Session>().refresh();
+      if (done == true && mounted) await context.read<Session>().refresh();
       return;
     }
     final ok = await Navigator.push<bool>(
@@ -165,7 +165,7 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                 onPressed: () async {
                   final done = await Navigator.push<bool>(context,
                       MaterialPageRoute(builder: (_) => const EnrollScreen()));
-                  if (done == true) await context.read<Session>().refresh();
+                  if (done == true && mounted) await context.read<Session>().refresh();
                 },
                 child: const Text('Начать'),
               ),

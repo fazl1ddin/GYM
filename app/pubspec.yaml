@@ -1,7 +1,7 @@
 name: faceclock
 description: "FaceClock — учёт рабочего времени по распознаванию лица"
 publish_to: "none"
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -22,9 +22,13 @@ dependencies:
   qr_flutter: ^4.1.0                    # показ динамического QR на терминале места
   share_plus: ^10.1.2                   # экспорт табеля (CSV)
   tflite_flutter: ^0.11.0               # (опц.) эмбеддинг лица на устройстве
+  flutter_map: ^8.1.1                    # карта для выбора геозоны (OSM, без ключа)
+  latlong2: ^0.9.1                       # координаты для flutter_map
 
 dev_dependencies:
   flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

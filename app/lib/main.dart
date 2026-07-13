@@ -29,6 +29,12 @@ class FaceClockApp extends StatelessWidget {
       title: 'FaceClock',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      // Тап в любом месте вне поля ввода прячет клавиатуру — во всех экранах сразу.
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child,
+      ),
       home: const _Root(),
     );
   }

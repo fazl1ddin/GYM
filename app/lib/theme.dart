@@ -90,6 +90,41 @@ class SoftCard extends StatelessWidget {
   }
 }
 
+/// Пустое состояние списка: иконка + заголовок + подпись. Оборачивать в
+/// прокручиваемый контейнер, чтобы работал pull-to-refresh.
+class EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Color? color;
+  const EmptyState({super.key, required this.icon, required this.title, this.subtitle, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 56, color: color ?? AppColors.inkSoft),
+            const SizedBox(height: 14),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            if (subtitle != null) ...[
+              const SizedBox(height: 6),
+              Text(subtitle!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.inkSoft, fontSize: 13)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Цветной статус-бейдж (подтверждено / на проверке / отклонено).
 class StatusPill extends StatelessWidget {
   final String label;
@@ -101,7 +136,7 @@ class StatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(label,

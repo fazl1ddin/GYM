@@ -149,8 +149,8 @@ class _CheckinScreenState extends State<CheckinScreen> {
                 textAlign: TextAlign.center),
             actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('ОК'))],
           ));
-          Navigator.pop(context, true);
         }
+        if (mounted) Navigator.pop(context, true);
         return;
       }
 
@@ -259,6 +259,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
                           style: TextStyle(color: AppColors.inkSoft, fontSize: 12.5)),
                     ],
                   ),
+                ),
     );
   }
 

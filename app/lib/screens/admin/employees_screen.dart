@@ -79,7 +79,18 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView.separated(
+              child: _employees.isEmpty
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                      SizedBox(height: 60),
+                      EmptyState(
+                        icon: Icons.people_outline,
+                        title: 'Пока нет сотрудников',
+                        subtitle: 'Добавьте сотрудников кнопкой «Добавить»',
+                      ),
+                    ])
+                  : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 90),
                 itemCount: _employees.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),

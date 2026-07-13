@@ -16,10 +16,19 @@ class ApiClient {
   ApiClient._();
   static final ApiClient instance = ApiClient._();
 
-  /// Адрес backend. Меняется в настройках (экран логина).
-  /// Для эмулятора Android localhost хоста доступен как 10.0.2.2.
-  String baseUrl = 'http://10.0.2.2:3000';
+  /// Дефолтный адрес backend. Для прод-сборки задаётся при компиляции:
+  /// `flutter build ipa --dart-define=FACECLOCK_BASE_URL=https://api.example.com`.
+  /// Без define — LAN-адрес для локальной разработки (телефон в той же Wi-Fi).
+  /// Пользователь может переопределить адрес на экране логина.
+  static const String _defaultBaseUrl = String.fromEnvironment(
+    'FACECLOCK_BASE_URL',
+    defaultValue: 'http://192.168.68.100:3000',
+  );
+  String baseUrl = _defaultBaseUrl;
   String? _cookie;
+
+  /// Есть ли сохранённая сессия (cookie) — чтобы не ходить в сеть впустую на старте.
+  bool get hasSession => _cookie != null;
 
   Future<void> init() async {
     final sp = await SharedPreferences.getInstance();
@@ -51,6 +60,9 @@ class ApiClient {
         if (_cookie != null) 'Cookie': _cookie!,
       };
 
+  /// Таймаут сетевых запросов: недоступный сервер не должен вешать UI.
+  static const Duration _timeout = Duration(seconds: 12);
+
   Future<dynamic> _request(String method, String path, [Object? body]) async {
     final uri = Uri.parse('$baseUrl$path');
     late http.Response res;
@@ -58,16 +70,16 @@ class ApiClient {
       final b = body != null ? jsonEncode(body) : null;
       switch (method) {
         case 'POST':
-          res = await http.post(uri, headers: _headers, body: b);
+          res = await http.post(uri, headers: _headers, body: b).timeout(_timeout);
           break;
         case 'PATCH':
-          res = await http.patch(uri, headers: _headers, body: b);
+          res = await http.patch(uri, headers: _headers, body: b).timeout(_timeout);
           break;
         case 'DELETE':
-          res = await http.delete(uri, headers: _headers, body: b);
+          res = await http.delete(uri, headers: _headers, body: b).timeout(_timeout);
           break;
         default:
-          res = await http.get(uri, headers: _headers);
+          res = await http.get(uri, headers: _headers).timeout(_timeout);
       }
     } catch (e) {
       throw ApiException('Нет связи с сервером. Проверьте адрес и сеть.');
