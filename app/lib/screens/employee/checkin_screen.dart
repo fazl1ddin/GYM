@@ -96,7 +96,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
   }
 
   void _onFace(Face? face) {
-    if (_capturing || _done || _tracker == null || _needQr) return;
+    if (_capturing || _done || _ready || _tracker == null || _needQr) return;
     if (face == null) {
       setState(() => _prompt = 'Лицо не видно');
       return;

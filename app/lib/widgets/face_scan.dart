@@ -37,7 +37,9 @@ class FaceScanViewState extends State<FaceScanView> {
   bool _busy = false;
   bool _streaming = false;
   DateTime _lastProc = DateTime.fromMillisecondsSinceEpoch(0);
-  static const Duration _minInterval = Duration(milliseconds: 150);
+  // 60мс (~16 к/с) — снижает нагрузку, но надёжно ловит закрытые глаза при
+  // моргании (окно ~100–150мс). Больший интервал пропускал бы блинк.
+  static const Duration _minInterval = Duration(milliseconds: 60);
 
   /// JPEG текущего кадра (data-URL) для серверной проверки живости.
   String? snapshotDataUrl() =>

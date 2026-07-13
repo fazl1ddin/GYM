@@ -573,7 +573,7 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
   const sod = startOfDay.getTime();
   const one = (sql, ...p) => db.prepare(sql).get(...p).c;
 
-  const employees = one("SELECT COUNT(*) c FROM employees WHERE role='employee'");
+  const employees = one("SELECT COUNT(*) c FROM employees WHERE role='employee' AND active=1");
   const onShift = one(`SELECT COUNT(*) c FROM (
       SELECT a.employee_id, a.type FROM attendance a
       JOIN (SELECT employee_id, MAX(server_time) mt FROM attendance WHERE status IN ('confirmed','pending') GROUP BY employee_id) l
@@ -602,7 +602,10 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
     todayEvents: one('SELECT COUNT(*) c FROM attendance WHERE server_time >= ?', sod),
     checkinsToday,
     lateToday,
-    absentToday: Math.max(0, employees - checkinsToday),
+    absentToday: one(`SELECT COUNT(*) c FROM employees e
+      WHERE e.role='employee' AND e.active=1 AND NOT EXISTS (
+        SELECT 1 FROM attendance a WHERE a.employee_id=e.id AND a.type='in'
+        AND a.status IN ('confirmed','pending') AND a.server_time >= ?)`, sod),
     confirmedToday: one("SELECT COUNT(*) c FROM attendance WHERE status='confirmed' AND server_time >= ?", sod),
     rejectedToday: one("SELECT COUNT(*) c FROM attendance WHERE status='rejected' AND server_time >= ?", sod),
     highRiskToday: one("SELECT COUNT(*) c FROM attendance WHERE risk_score >= 60 AND server_time >= ?", sod),

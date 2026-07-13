@@ -120,14 +120,17 @@ class _OverviewTabState extends State<_OverviewTab> {
             padding: const EdgeInsets.fromLTRB(2, 14, 0, 12),
             child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
           ),
-          GridView.count(
-            crossAxisCount: 2,
+          GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.32,
-            children: cards,
+            itemCount: cards.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              mainAxisExtent: 132, // фикс-высота карточки — не зависит от ширины экрана
+            ),
+            itemBuilder: (_, i) => cards[i],
           ),
         ],
       );
