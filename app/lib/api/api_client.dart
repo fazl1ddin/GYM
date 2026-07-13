@@ -121,6 +121,11 @@ class ApiClient {
       _request('POST', '/api/enroll',
           {'embedding': embedding, 'photo': photoBase64, 'deviceId': deviceId});
 
+  /// Регистрация лица сотрудника администратором (под контролем HR).
+  Future<void> enrollFor(int employeeId, List<double>? embedding, String? photoBase64) =>
+      _request('POST', '/api/admin/employees/$employeeId/enroll',
+          {'embedding': embedding, 'photo': photoBase64});
+
   Future<CheckinChallenge> challenge(String type) async =>
       CheckinChallenge.fromJson(await _request('POST', '/api/checkin/challenge', {'type': type}));
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../api/api_client.dart';
 import '../../api/models.dart';
 import '../../theme.dart';
+import '../employee/enroll_screen.dart';
 
 /// Модальная форма добавления/редактирования сотрудника.
 class EmployeeForm extends StatefulWidget {
@@ -85,6 +86,20 @@ class _EmployeeFormState extends State<EmployeeForm> {
     }
   }
 
+  Future<void> _enrollFace() async {
+    final done = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EnrollScreen(employeeId: widget.user!.id, employeeName: widget.user!.name),
+      ),
+    );
+    if (done == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Лицо зарегистрировано')));
+      Navigator.pop(context, true); // закрываем форму и обновляем список
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -142,7 +157,22 @@ class _EmployeeFormState extends State<EmployeeForm> {
                 activeThumbColor: AppColors.success,
                 onChanged: (v) => setState(() => _active = v),
               ),
-            if (_editing)
+            if (_editing) ...[
+              const SizedBox(height: 6),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _enrollFace,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.accent,
+                    side: const BorderSide(color: AppColors.accent),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  icon: const Icon(Icons.face_retouching_natural, size: 20),
+                  label: Text(widget.user!.enrolled ? 'Перерегистрировать лицо' : 'Зарегистрировать лицо'),
+                ),
+              ),
+              const SizedBox(height: 8),
               Wrap(spacing: 8, children: [
                 OutlinedButton.icon(
                   onPressed: () => _reset('resetFace'),
@@ -155,6 +185,7 @@ class _EmployeeFormState extends State<EmployeeForm> {
                   label: const Text('Сбросить устройство'),
                 ),
               ]),
+            ],
             if (_error != null) ...[
               const SizedBox(height: 10),
               Text(_error!, style: const TextStyle(color: AppColors.danger)),

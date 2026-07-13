@@ -437,6 +437,46 @@ app.delete('/api/admin/employees/:id', requireAuth, requireAdmin, (req, res) => 
   res.json({ ok: true });
 });
 
+// Регистрация лица сотрудника администратором (под контролем HR).
+// Дескриптор считает сервер из фото; устройство НЕ привязываем — оно привяжется
+// на первой отметке с телефона самого сотрудника.
+app.post('/api/admin/employees/:id/enroll', requireAuth, requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  const emp = db.prepare('SELECT * FROM employees WHERE id = ?').get(id);
+  if (!emp) return res.status(404).json({ error: 'Сотрудник не найден' });
+
+  const { embedding, photo } = req.body || {};
+  let descriptor = null;
+  if (POLICY.serverSideEmbedding) {
+    if (!faceReady()) return res.status(503).json({ error: 'Модели распознавания ещё загружаются, повторите' });
+    if (!photo) return res.status(400).json({ error: 'Нужно фото лица' });
+    const r = await embedFromDataUrl(photo);
+    if (!r) return res.status(400).json({ error: 'Лицо на фото не найдено, повторите' });
+    descriptor = r.descriptor;
+  } else {
+    if (!isValidEmbedding(embedding)) return res.status(400).json({ error: 'Некорректный эмбеддинг лица' });
+    descriptor = embedding;
+  }
+
+  // Дубль: это лицо не должно быть привязано к другому сотруднику (№4).
+  if (POLICY.serverSideEmbedding) {
+    const others = db.prepare('SELECT descriptor FROM face_templates WHERE employee_id != ?').all(id);
+    for (const o of others) {
+      if (euclideanDistance(descriptor, JSON.parse(o.descriptor)) < POLICY.faceDupMaxDistance) {
+        return res.status(409).json({ error: 'Это лицо уже зарегистрировано за другим сотрудником' });
+      }
+    }
+  }
+
+  const photoRef = savePhoto(photo);
+  // Перерегистрация: заменяем прежние шаблоны сотрудника.
+  db.prepare('DELETE FROM face_templates WHERE employee_id = ?').run(id);
+  db.prepare('INSERT INTO face_templates (employee_id, descriptor, photo_ref) VALUES (?,?,?)')
+    .run(id, JSON.stringify(descriptor), photoRef);
+  db.prepare('UPDATE employees SET enrolled = 1 WHERE id = ?').run(id);
+  res.json({ employee: publicEmployee(db.prepare('SELECT * FROM employees WHERE id = ?').get(id)) });
+});
+
 // ---- workplaces ----
 app.get('/api/admin/workplaces', requireAuth, requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT * FROM workplaces ORDER BY name').all();

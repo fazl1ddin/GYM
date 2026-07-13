@@ -15,7 +15,11 @@ import '../../widgets/face_scan.dart';
 /// 3) «Моргните» — моргните. После этого делается фронтальный снимок и
 /// отправляется на сервер. Регистрируется один раз, лучше под контролем HR.
 class EnrollScreen extends StatefulWidget {
-  const EnrollScreen({super.key});
+  /// Если заданы — админ регистрирует лицо этого сотрудника (HR-режим).
+  /// Иначе сотрудник регистрирует своё лицо сам.
+  final int? employeeId;
+  final String? employeeName;
+  const EnrollScreen({super.key, this.employeeId, this.employeeName});
   @override
   State<EnrollScreen> createState() => _EnrollScreenState();
 }
@@ -121,8 +125,12 @@ class _EnrollScreenState extends State<EnrollScreen> {
         try { embedding = await FaceService.embedFromFile(shot.path, faces.first); } catch (_) {}
       }
       final photo = base64Encode(await File(shot.path).readAsBytes());
-      await ApiClient.instance.enroll(embedding, 'data:image/jpeg;base64,$photo',
-          DeviceService.deviceId);
+      final dataUrl = 'data:image/jpeg;base64,$photo';
+      if (widget.employeeId != null) {
+        await ApiClient.instance.enrollFor(widget.employeeId!, embedding, dataUrl);
+      } else {
+        await ApiClient.instance.enroll(embedding, dataUrl, DeviceService.deviceId);
+      }
       _done = true;
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -153,7 +161,7 @@ class _EnrollScreenState extends State<EnrollScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Регистрация лица')),
+      appBar: AppBar(title: Text(widget.employeeName != null ? 'Лицо · ${widget.employeeName}' : 'Регистрация лица')),
       body: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
